@@ -6,6 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, OTP
 from .serializers import SendOTPSerializer, VerifyOTPSerializer, UserProfileSerializer
 from notifications.services import send_whatsapp_message
+from twilio.rest import Client
+from django.conf import settings
 
 class SendOTPView(APIView):
     permission_classes = [AllowAny]
@@ -24,71 +26,94 @@ class SendOTPView(APIView):
 
         return Response({"message": "OTP sent successfully"})
     
-#OTP is sent via WhatsApp instead of SMS
+
 class SendOTPViewviaWhatsapp(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = SendOTPSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        mobile = serializer.validated_data['mobile']
-        otp_code = str(random.randint(100000, 999999))
-
-        OTP.objects.create(mobile=mobile, otp=otp_code)
-
-        message = (
-            f"Your HomeKitchen OTP is {otp_code}.\n"
-            "Do not share this OTP with anyone."
-        )
-
         try:
-            send_whatsapp_message(mobile, message)
-            return Response(
-                {"message": "OTP sent via WhatsApp"},
-                status=200
+            mobile = request.data.get("mobile")
+            print("VERIFY SID =", settings.TWILIO_VERIFY_SERVICE_SID)
+
+            if not mobile:
+                return Response(
+                    {"error": "Mobile number required"},
+                    status=400
+                )
+
+            mobile = mobile[-10:]  # normalize
+
+            client = Client(
+                settings.TWILIO_ACCOUNT_SID,
+                settings.TWILIO_AUTH_TOKEN
             )
 
+            # ✅ THIS IS WHERE YOUR CODE IS USED
+            verification = client.verify.services(
+                settings.TWILIO_VERIFY_SERVICE_SID
+            ).verifications.create(
+                # to=f"whatsapp:+91{mobile}",
+                to=f"+91{mobile}",
+                channel="sms"
+            )
+
+            return Response({
+                "message": "OTP sent via WhatsApp",
+                "status": verification.status  # usually "pending"
+            })
         except Exception as e:
+            print("TWILIO ERROR:", e)
             return Response(
                 {"error": str(e)},
-                status=400
+                status=500
             )
-
-
 
 class VerifyOTPView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = VerifyOTPSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        try:
+            mobile = request.data.get("mobile")
+            otp = request.data.get("otp")
 
-        mobile = serializer.validated_data['mobile']
-        otp = serializer.validated_data['otp']
+            if not mobile or not otp:
+                return Response({"error": "Mobile & OTP required"}, status=400)
 
-        otp_obj = OTP.objects.filter(
-            mobile=mobile, otp=otp, is_used=False
-        ).first()
+            mobile = mobile[-10:]
 
-        if not otp_obj:
-            return Response({"error": "Invalid OTP"}, status=400)
+            client = Client(
+                settings.TWILIO_ACCOUNT_SID,
+                settings.TWILIO_AUTH_TOKEN
+            )
 
-        otp_obj.is_used = True
-        otp_obj.save()
+            verification_check = client.verify.services(
+                settings.TWILIO_VERIFY_SERVICE_SID
+            ).verification_checks.create(
+                to=f"+91{mobile}",   # ✅ SAME FORMAT
+                code=otp
+            )
 
-        user, created = User.objects.get_or_create(
-            mobile=mobile,
-            defaults={"is_verified": True}
-        )
+            if verification_check.status != "approved":
+                return Response({"error": "Invalid OTP"}, status=400)
 
-        refresh = RefreshToken.for_user(user)
+            user, _ = User.objects.get_or_create(
+                mobile=mobile,
+                defaults={"is_verified": True}
+            )
 
-        return Response({
-            "access": str(refresh.access_token),
-            "refresh": str(refresh)
-        })
+            refresh = RefreshToken.for_user(user)
 
+            return Response({
+                "message": "Login successful",
+                "access": str(refresh.access_token),
+                "refresh": str(refresh)
+            })
+        except Exception as e:
+            print("TWILIO ERROR:", e)
+            return Response(
+                {"error": str(e)},
+                status=500
+            )
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]

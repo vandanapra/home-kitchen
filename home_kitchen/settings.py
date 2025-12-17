@@ -93,16 +93,16 @@ WSGI_APPLICATION = 'home_kitchen.wsgi.application'
 #     }
 # }
 
-"""DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'home_kitchen_db',
-        'USER': 'postgres',
-        'PASSWORD': '1@Aachal',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
-}"""
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'home_kitchen_db',
+#         'USER': 'postgres',
+#         'PASSWORD': '1@Aachal',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
+#     }
+# }
 
 
 DATABASES = {
@@ -169,6 +169,7 @@ REST_FRAMEWORK = {
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 TWILIO_WHATSAPP_FROM = os.getenv('TWILIO_WHATSAPP_FROM')
+TWILIO_VERIFY_SERVICE_SID = os.getenv('TWILIO_VERIFY_SERVICE_SID')
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
