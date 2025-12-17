@@ -20,14 +20,17 @@ class SellerProfileView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = SellerProfileSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer = SellerProfileSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
 
-        profile, created = SellerProfile.objects.update_or_create(
-            user=request.user,
-            defaults=serializer.validated_data
-        )
+            profile, created = SellerProfile.objects.update_or_create(
+                user=request.user,
+                defaults=serializer.validated_data
+            )
 
-        return Response({
-            "message": "Kitchen profile saved successfully"
-        })
+            return Response({
+                "message": "Kitchen profile saved successfully"
+            })
+        except Exception as e:
+            print(str(e))
