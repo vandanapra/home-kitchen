@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import SellerProfile
+from .models import *
 
 class SellerProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,3 +18,25 @@ class SellerProfileSerializer(serializers.ModelSerializer):
                 "Opening time must be before closing time"
             )
         return data
+    
+class MenuItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MenuItem
+        fields = ["id", "name", "description", "price", "is_available"]
+
+
+class MenuDaySerializer(serializers.ModelSerializer):
+    items = MenuItemSerializer(many=True)
+
+    class Meta:
+        model = MenuDay
+        fields = ["id", "date", "is_active", "items"]
+
+    def create(self, validated_data):
+        items_data = validated_data.pop("items")
+        menu_day = MenuDay.objects.create(**validated_data)
+
+        for item in items_data:
+            MenuItem.objects.create(menu_day=menu_day, **item)
+
+        return menu_day
