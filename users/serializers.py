@@ -32,3 +32,21 @@ class SignupSerializer(serializers.ModelSerializer):
         if not value.isdigit():
             raise serializers.ValidationError("Pincode must be numeric")
         return value
+    
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "mobile",
+            "name",
+            "city",
+            "address",
+            "pincode",
+        ]
+        read_only_fields = ["mobile"]
+
+    def validate_pincode(self, value):
+        if not value.isdigit() or len(value) != 6:
+            raise serializers.ValidationError("Pincode must be 6 digits")
+        return value
+

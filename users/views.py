@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, OTP
-from .serializers import SendOTPSerializer, VerifyOTPSerializer, UserProfileSerializer,SignupSerializer
+from .serializers import SendOTPSerializer, VerifyOTPSerializer, UserProfileSerializer,SignupSerializer,ProfileSerializer
 from notifications.services import send_whatsapp_message
 from twilio.rest import Client
 from django.conf import settings
@@ -115,13 +115,13 @@ class SendOTPViewviaWhatsapp(APIView):
 #                 status=500
 #             )
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-from django.conf import settings
-from twilio.rest import Client
-from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import User
+# from rest_framework.views import APIView
+# from rest_framework.response import Response
+# from rest_framework.permissions import AllowAny
+# from django.conf import settings
+# from twilio.rest import Client
+# from rest_framework_simplejwt.tokens import RefreshToken
+# from users.models import User
 
 
 class VerifyOTPView(APIView):
@@ -208,3 +208,13 @@ class ProfileView(APIView):
     def get(self, request):
         serializer = UserProfileSerializer(request.user)
         return Response(serializer.data)
+    
+    def put(self, request):
+        serializer = ProfileSerializer(
+            request.user,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"message": "Profile updated successfully"})
