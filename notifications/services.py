@@ -1,10 +1,25 @@
 from twilio.rest import Client
 from django.conf import settings
 
-def send_whatsapp_message(to, message):
-    """
-    to: whatsapp:+91XXXXXXXXXX
-    """
+# def send_whatsapp_message(to, message):
+#     """
+#     to: whatsapp:+91XXXXXXXXXX
+#     """
+#     client = Client(
+#         settings.TWILIO_ACCOUNT_SID,
+#         settings.TWILIO_AUTH_TOKEN
+#     )
+
+#     msg = client.messages.create(
+#         from_=settings.TWILIO_WHATSAPP_FROM,
+#         to=f"whatsapp:{to}",
+#         body=message
+#     )
+
+#     return msg.sid
+
+
+def send_whatsapp_message(mobile, message):
     client = Client(
         settings.TWILIO_ACCOUNT_SID,
         settings.TWILIO_AUTH_TOKEN
@@ -12,7 +27,7 @@ def send_whatsapp_message(to, message):
 
     msg = client.messages.create(
         from_=settings.TWILIO_WHATSAPP_FROM,
-        to=f"whatsapp:{to}",
+        to=f"whatsapp:+91{mobile}",   # ✅ ONLY HERE
         body=message
     )
 

@@ -37,14 +37,23 @@ class SendOTPViewviaWhatsapp(APIView):
 
         OTP.objects.create(mobile=mobile, otp=otp_code)
 
-        message = f"""
-        Your HomeKitchen OTP is {otp_code}.
-        Do not share this OTP with anyone.
-        """
+        message = (
+            f"Your HomeKitchen OTP is {otp_code}.\n"
+            "Do not share this OTP with anyone."
+        )
 
-        send_whatsapp_message(mobile, message)
+        try:
+            send_whatsapp_message(mobile, message)
+            return Response(
+                {"message": "OTP sent via WhatsApp"},
+                status=200
+            )
 
-        return Response({"message": "OTP sent via WhatsApp"})
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=400
+            )
 
 
 
