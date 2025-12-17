@@ -17,3 +17,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'id', 'name', 'mobile', 'email', 'role',
             'city', 'address', 'country', 'pincode'
         )
+
+class SignupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["name", "city", "address", "pincode"]
