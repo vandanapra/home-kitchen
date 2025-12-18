@@ -35,51 +35,101 @@ class SellerProfileView(APIView):
         except Exception as e:
             print(str(e))
             
+# class SellerMenuView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         today = timezone.now().date()
+#         menu = MenuDay.objects.filter(
+#             seller=request.user,
+#             date=today
+#         ).first()
+
+#         if not menu:
+#             return Response({"menu": None})
+
+#         return Response(MenuDaySerializer(menu).data)
+    
+#     def post(self, request):
+#         today = timezone.now().date()
+
+#         items = request.data.get("items", [])
+
+#         # ✅ FIX: update_or_create instead of create
+#         menu_day, created = MenuDay.objects.update_or_create(
+#             seller=request.user,
+#             date=today,
+#             defaults={
+#                 "is_active": True
+#             }
+#         )
+
+#         # 🔥 IMPORTANT: old items delete karo
+#         menu_day.items.all().delete()
+
+#         # 🔥 new items add karo
+#         for item in items:
+#             MenuItem.objects.create(
+#                 menu_day=menu_day,
+#                 name=item.get("name"),
+#                 description=item.get("description", ""),
+#                 price=item.get("price"),
+#                 is_available=True
+#             )
+
+#         return Response({
+#             "message": "Menu saved successfully",
+#             "created": created
+#         })
+
 class SellerMenuView(APIView):
     permission_classes = [IsAuthenticated]
 
+    # 🔹 GET menu (by date)
     def get(self, request):
-        today = timezone.now().date()
+        date = request.query_params.get("date")
+        date = date or timezone.now().date()
+
         menu = MenuDay.objects.filter(
             seller=request.user,
-            date=today
+            date=date
         ).first()
 
         if not menu:
             return Response({"menu": None})
 
         return Response(MenuDaySerializer(menu).data)
-    
-    def post(self, request):
-        today = timezone.now().date()
 
+    # 🔹 PUT = ADD + EDIT
+    def put(self, request):
+        date = request.data.get("date") or timezone.now().date()
         items = request.data.get("items", [])
 
-        # ✅ FIX: update_or_create instead of create
+        if not items:
+            return Response(
+                {"error": "Items required"},
+                status=400
+            )
+
         menu_day, created = MenuDay.objects.update_or_create(
             seller=request.user,
-            date=today,
-            defaults={
-                "is_active": True
-            }
+            date=date,
+            defaults={"is_active": True}
         )
 
-        # 🔥 IMPORTANT: old items delete karo
         menu_day.items.all().delete()
 
-        # 🔥 new items add karo
         for item in items:
             MenuItem.objects.create(
                 menu_day=menu_day,
-                name=item.get("name"),
+                name=item["name"],
                 description=item.get("description", ""),
-                price=item.get("price"),
+                price=item["price"],
                 is_available=True
             )
 
         return Response({
-            "message": "Menu saved successfully",
-            "created": created
+            "message": "Menu added" if created else "Menu updated"
         })
 
 
@@ -121,3 +171,20 @@ class CustomerSellerListView(APIView):
             })
 
         return Response(data)
+    
+class SellerMenuItemDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, item_id):
+        try:
+            item = MenuItem.objects.get(
+                id=item_id,
+                menu_day__seller=request.user
+            )
+            item.delete()
+            return Response({"message": "Item deleted"})
+        except MenuItem.DoesNotExist:
+            return Response(
+                {"error": "Item not found"},
+                status=404
+            )
