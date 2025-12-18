@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -192,3 +193,20 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://13.233.98.184:8000",
 ]
+
+
+
+SIMPLE_JWT = {
+
+    # 🔥 ACCESS TOKEN — 3 DAYS
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=3),
+
+    # 🔁 REFRESH TOKEN — 7 DAYS
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+
+    # OPTIONAL (safe defaults)
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
