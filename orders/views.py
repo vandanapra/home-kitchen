@@ -25,7 +25,8 @@ class OrderCreateView(APIView):
     
 ###order create thorough whatsappmessage   
 class OrderCreateWhatsappView(APIView):
-    permission_classes = [IsCustomer]
+    # permission_classes = [IsCustomer]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         user = request.user
