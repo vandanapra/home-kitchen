@@ -40,7 +40,7 @@ class OrderCreateWhatsappView(APIView):
                     status=400
                 )
 
-            seller = SellerProfile.objects.get(id=seller_id)
+            seller = SellerProfile.objects.get(user__id=seller_id)
             today = timezone.now().date()
 
             if Order.objects.filter(
