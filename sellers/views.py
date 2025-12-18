@@ -51,7 +51,31 @@ class SellerMenuView(APIView):
         return Response(MenuDaySerializer(menu).data)
 
     def post(self, request):
-        serializer = MenuDaySerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(seller=request.user)
-        return Response({"message": "Menu saved successfully"})
+        try:
+            serializer = MenuDaySerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(seller=request.user)
+            return Response({"message": "Menu saved successfully"})
+        except Exception as e:
+            print(e)
+
+
+class CustomerTodayMenuView(APIView):
+    permission_classes = []  # Public API
+
+    def get(self, request, seller_id):
+        today = timezone.now().date()
+
+        menu = MenuDay.objects.filter(
+            seller_id=seller_id,
+            date=today,
+            is_active=True
+        ).first()
+
+        if not menu:
+            return Response({
+                "message": "No menu available today"
+            }, status=200)
+
+        serializer = MenuDaySerializer(menu)
+        return Response(serializer.data)
