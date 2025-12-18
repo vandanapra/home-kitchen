@@ -29,65 +29,68 @@ class OrderCreateWhatsappView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        user = request.user
-        seller_id = request.data.get("seller_id")
-        items = request.data.get("items", [])
+        try:
+            user = request.user
+            seller_id = request.data.get("seller_id")
+            items = request.data.get("items", [])
 
-        if not seller_id or not items:
+            if not seller_id or not items:
+                return Response(
+                    {"message": "Seller & items required"},
+                    status=400
+                )
+
+            seller = SellerProfile.objects.get(id=seller_id)
+            today = timezone.now().date()
+
+            if Order.objects.filter(
+                customer=user,
+                seller=seller,
+                order_date=today
+            ).exists():
+                return Response(
+                    {"message": "Order already placed today"},
+                    status=400
+                )
+
+            order = Order.objects.create(
+                customer=user,
+                seller=seller,
+                total_amount=0,
+                status="PENDING"
+            )
+
+            total = Decimal("0.00")
+
+            for item in items:
+                menu_item = MenuItem.objects.get(
+                    id=item["menu_item_id"],
+                    menu_day__seller=seller   # 🔥 IMPORTANT
+                )
+
+                qty = int(item["quantity"])
+
+                OrderItem.objects.create(
+                    order=order,
+                    menu_item=menu_item,
+                    quantity=qty
+                )
+
+                total += menu_item.price * qty
+
+            order.total_amount = total
+            order.save()
+
             return Response(
-                {"message": "Seller & items required"},
-                status=400
+                {
+                    "message": "Order placed successfully",
+                    "order_id": order.id,
+                    "total": total
+                },
+                status=201
             )
-
-        seller = SellerProfile.objects.get(id=seller_id)
-        today = timezone.now().date()
-
-        if Order.objects.filter(
-            customer=user,
-            seller=seller,
-            order_date=today
-        ).exists():
-            return Response(
-                {"message": "Order already placed today"},
-                status=400
-            )
-
-        order = Order.objects.create(
-            customer=user,
-            seller=seller,
-            total_amount=0,
-            status="PENDING"
-        )
-
-        total = Decimal("0.00")
-
-        for item in items:
-            menu_item = MenuItem.objects.get(
-                id=item["menu_item_id"],
-                menu_day__seller=seller   # 🔥 IMPORTANT
-            )
-
-            qty = int(item["quantity"])
-
-            OrderItem.objects.create(
-                order=order,
-                menu_item=menu_item,
-                quantity=qty
-            )
-
-            total += menu_item.price * qty
-
-        order.total_amount = total
-        order.save()
-
-        return Response(
-            {
-                "message": "Order placed successfully",
-                "order_id": order.id,
-                "total": total
-            },
-            status=201
-        )
+        except Exception as e:
+            print(e)
     
 class SellerOrdersView(APIView):
     permission_classes = [IsAuthenticated]
