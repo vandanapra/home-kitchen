@@ -65,7 +65,7 @@ class OrderCreateWhatsappView(APIView):
             for item in items:
                 menu_item = MenuItem.objects.get(
                     id=item["menu_item_id"],
-                    menu_day__seller=seller   # 🔥 IMPORTANT
+                    menu_day__seller=seller.user   # 🔥 IMPORTANT
                 )
 
                 qty = int(item["quantity"])
