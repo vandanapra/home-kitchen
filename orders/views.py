@@ -11,7 +11,8 @@ from notifications.services import send_whatsapp_message
 
 
 class OrderCreateView(APIView):
-    permission_classes = [IsCustomer]
+    # permission_classes = [IsCustomer]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = OrderSerializer(data=request.data)
@@ -24,13 +25,10 @@ class OrderCreateWhatsappView(APIView):
     permission_classes = [IsCustomer]
 
     def post(self, request):
-        serializer = OrderSerializer(data=request.data)
+        serializer = OrderSerializer(data=request.data,context={"request": request})
         serializer.is_valid(raise_exception=True)
 
-        order = serializer.save(
-            customer=request.user,
-            status="PENDING"
-        )
+        order = serializer.save()
 
         message = f"""
         🍱 Order Confirmed!
@@ -41,7 +39,22 @@ class OrderCreateWhatsappView(APIView):
 
         send_whatsapp_message(request.user.mobile, message)
 
-        return Response(serializer.data)
+        return Response({"message": "Order placed successfully"},data=serializer.data)
+    
+    
+class SellerOrdersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        orders = Order.objects.filter(
+            seller=request.user
+        ).order_by("-created_at")
+
+        from .serializers import OrderSerializer
+        return Response(
+            OrderSerializer(orders, many=True).data
+        )
+
 
 
 
@@ -49,6 +62,6 @@ class OrderListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        orders = Order.objects.filter(customer=request.user)
+        orders = Order.objects.filter(customer=request.user).order_by("-created_at")
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
