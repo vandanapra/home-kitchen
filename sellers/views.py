@@ -49,15 +49,38 @@ class SellerMenuView(APIView):
             return Response({"menu": None})
 
         return Response(MenuDaySerializer(menu).data)
-
+    
     def post(self, request):
-        try:
-            serializer = MenuDaySerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save(seller=request.user)
-            return Response({"message": "Menu saved successfully"})
-        except Exception as e:
-            print(e)
+        today = timezone.now().date()
+
+        items = request.data.get("items", [])
+
+        # ✅ FIX: update_or_create instead of create
+        menu_day, created = MenuDay.objects.update_or_create(
+            seller=request.user,
+            date=today,
+            defaults={
+                "is_active": True
+            }
+        )
+
+        # 🔥 IMPORTANT: old items delete karo
+        menu_day.items.all().delete()
+
+        # 🔥 new items add karo
+        for item in items:
+            MenuItem.objects.create(
+                menu_day=menu_day,
+                name=item.get("name"),
+                description=item.get("description", ""),
+                price=item.get("price"),
+                is_available=True
+            )
+
+        return Response({
+            "message": "Menu saved successfully",
+            "created": created
+        })
 
 
 class CustomerTodayMenuView(APIView):
@@ -79,3 +102,22 @@ class CustomerTodayMenuView(APIView):
 
         serializer = MenuDaySerializer(menu)
         return Response(serializer.data)
+    
+class CustomerSellerListView(APIView):
+    permission_classes = []  # public API
+
+    def get(self, request):
+        sellers = SellerProfile.objects.filter(is_active=True)
+
+        data = []
+        for seller in sellers:
+            data.append({
+                "id": seller.id,                 # 🔑 IMPORTANT
+                "kitchen_name": seller.kitchen_name,
+                "description": seller.description,
+                "avg_rating": seller.avg_rating,
+                "opening_time": seller.opening_time,
+                "closing_time": seller.closing_time,
+            })
+
+        return Response(data)
