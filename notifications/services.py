@@ -24,9 +24,6 @@ def send_whatsapp_message(mobile, message):
         settings.TWILIO_ACCOUNT_SID,
         settings.TWILIO_AUTH_TOKEN
     )
-    print(settings.TWILIO_ACCOUNT_SID)
-    print(settings.TWILIO_WHATSAPP_FROM)
-
     msg = client.messages.create(
         from_=settings.TWILIO_WHATSAPP_FROM,
         to=f"whatsapp:+91{mobile}",   # ✅ ONLY HERE

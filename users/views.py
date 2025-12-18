@@ -68,61 +68,6 @@ class SendOTPViewviaWhatsapp(APIView):
                 status=500
             )
 
-# class VerifyOTPView(APIView):
-#     permission_classes = [AllowAny]
-
-#     def post(self, request):
-#         try:
-#             mobile = request.data.get("mobile")
-#             otp = request.data.get("otp")
-
-#             if not mobile or not otp:
-#                 return Response({"error": "Mobile & OTP required"}, status=400)
-
-#             mobile = mobile[-10:]
-
-#             client = Client(
-#                 settings.TWILIO_ACCOUNT_SID,
-#                 settings.TWILIO_AUTH_TOKEN
-#             )
-
-#             verification_check = client.verify.services(
-#                 settings.TWILIO_VERIFY_SERVICE_SID
-#             ).verification_checks.create(
-#                 to=f"+91{mobile}",   # ✅ SAME FORMAT
-#                 code=otp
-#             )
-
-#             if verification_check.status != "approved":
-#                 return Response({"error": "Invalid OTP"}, status=400)
-
-#             user, _ = User.objects.get_or_create(
-#                 mobile=mobile,
-#                 defaults={"is_verified": True}
-#             )
-
-#             refresh = RefreshToken.for_user(user)
-
-#             return Response({
-#                 "message": "Login successful",
-#                 "access": str(refresh.access_token),
-#                 "refresh": str(refresh)
-#             })
-#         except Exception as e:
-#             print("TWILIO ERROR:", e)
-#             return Response(
-#                 {"error": str(e)},
-#                 status=500
-#             )
-
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework.permissions import AllowAny
-# from django.conf import settings
-# from twilio.rest import Client
-# from rest_framework_simplejwt.tokens import RefreshToken
-# from users.models import User
-
 
 class VerifyOTPView(APIView):
     permission_classes = [AllowAny]
