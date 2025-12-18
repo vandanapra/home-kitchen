@@ -112,7 +112,7 @@ class CustomerSellerListView(APIView):
         data = []
         for seller in sellers:
             data.append({
-                "id": seller.id,                 # 🔑 IMPORTANT
+                "id": seller.user.id,                 # 🔑 IMPORTANT
                 "kitchen_name": seller.kitchen_name,
                 "description": seller.description,
                 "avg_rating": seller.avg_rating,
