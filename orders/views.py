@@ -121,9 +121,12 @@ class OrderHistoryView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        orders = Order.objects.filter(
-            customer=request.user
-        ).order_by("-created_at")
+        try:
+            orders = Order.objects.filter(
+                customer=request.user
+            ).order_by("-created_at")
 
-        serializer = OrderSerializer(orders, many=True)
-        return Response(serializer.data)
+            serializer = OrderSerializer(orders, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            print(e)
