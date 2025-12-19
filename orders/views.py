@@ -115,3 +115,15 @@ class OrderListView(APIView):
         orders = Order.objects.filter(customer=request.user).order_by("-created_at")
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
+
+
+class OrderHistoryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        orders = Order.objects.filter(
+            customer=request.user
+        ).order_by("-created_at")
+
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)
