@@ -101,37 +101,6 @@ class SellerMenuView(APIView):
         return Response(MenuDaySerializer(menu).data)
 
     # 🔹 PUT = ADD + EDIT
-    # def put(self, request):
-    #     date = request.data.get("date") or timezone.now().date()
-    #     items = request.data.get("items", [])
-
-    #     if not items:
-    #         return Response(
-    #             {"error": "Items required"},
-    #             status=400
-    #         )
-
-    #     menu_day, created = MenuDay.objects.update_or_create(
-    #         seller=request.user,
-    #         date=date,
-    #         defaults={"is_active": True}
-    #     )
-
-    #     menu_day.items.all().delete()
-
-    #     for item in items:
-    #         MenuItem.objects.create(
-    #             menu_day=menu_day,
-    #             name=item["name"],
-    #             description=item.get("description", ""),
-    #             price=item["price"],
-    #             is_available=True
-    #         )
-
-    #     return Response({
-    #         "message": "Menu added" if created else "Menu updated"
-    #     })
-    
     def put(self, request):
         date = request.data.get("date") or timezone.now().date()
         items = request.data.get("items", [])
@@ -239,3 +208,28 @@ class SellerMenuItemDeleteView(APIView):
                 {"error": "Item not found"},
                 status=404
             )
+            
+            
+class CustomerDashboardView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        today = timezone.now().date()
+        data = []
+
+        sellers = SellerProfile.objects.filter(is_active=True)
+
+        for seller in sellers:
+            menu = MenuDay.objects.filter(
+                seller=seller.user,
+                date=today
+            ).first()
+
+            data.append({
+                "seller_id": seller.user.id,
+                "kitchen_name": seller.kitchen_name,
+                "description": seller.description,
+                "menu": MenuDaySerializer(menu).data if menu else None
+            })
+
+        return Response(data)

@@ -107,7 +107,7 @@ class VerifyOTPView(APIView):
             # 👤 USER CHECK
             user, created = User.objects.get_or_create(
                 mobile=mobile,
-                defaults={"is_verified": True}
+                defaults={"is_verified": True,"role":"CUSTOMER"}
             )
 
             # If existing user, ensure verified
