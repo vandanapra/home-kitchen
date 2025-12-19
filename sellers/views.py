@@ -101,6 +101,37 @@ class SellerMenuView(APIView):
         return Response(MenuDaySerializer(menu).data)
 
     # 🔹 PUT = ADD + EDIT
+    # def put(self, request):
+    #     date = request.data.get("date") or timezone.now().date()
+    #     items = request.data.get("items", [])
+
+    #     if not items:
+    #         return Response(
+    #             {"error": "Items required"},
+    #             status=400
+    #         )
+
+    #     menu_day, created = MenuDay.objects.update_or_create(
+    #         seller=request.user,
+    #         date=date,
+    #         defaults={"is_active": True}
+    #     )
+
+    #     menu_day.items.all().delete()
+
+    #     for item in items:
+    #         MenuItem.objects.create(
+    #             menu_day=menu_day,
+    #             name=item["name"],
+    #             description=item.get("description", ""),
+    #             price=item["price"],
+    #             is_available=True
+    #         )
+
+    #     return Response({
+    #         "message": "Menu added" if created else "Menu updated"
+    #     })
+    
     def put(self, request):
         date = request.data.get("date") or timezone.now().date()
         items = request.data.get("items", [])
@@ -117,19 +148,39 @@ class SellerMenuView(APIView):
             defaults={"is_active": True}
         )
 
-        menu_day.items.all().delete()
+        existing_ids = []
 
         for item in items:
-            MenuItem.objects.create(
-                menu_day=menu_day,
-                name=item["name"],
-                description=item.get("description", ""),
-                price=item["price"],
-                is_available=True
-            )
+            item_id = item.get("id")
+
+            # ✏️ UPDATE EXISTING ITEM
+            if item_id:
+                menu_item = MenuItem.objects.filter(
+                    id=item_id,
+                    menu_day=menu_day
+                ).first()
+
+                if menu_item:
+                    menu_item.name = item["name"]
+                    menu_item.description = item.get("description", "")
+                    menu_item.price = item["price"]
+                    menu_item.save()
+                    existing_ids.append(menu_item.id)
+
+            # ➕ ADD NEW ITEM (APPEND)
+            else:
+                new_item = MenuItem.objects.create(
+                    menu_day=menu_day,
+                    name=item["name"],
+                    description=item.get("description", ""),
+                    price=item["price"],
+                    is_available=True
+                )
+                existing_ids.append(new_item.id)
 
         return Response({
-            "message": "Menu added" if created else "Menu updated"
+            "message": "Menu updated successfully",
+            "menu_id": menu_day.id
         })
 
 
