@@ -21,8 +21,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class SignupSerializer(serializers.ModelSerializer):
     name = serializers.CharField(min_length=3, required=True)
     city = serializers.CharField(min_length=2, required=True)
-    address = serializers.CharField(min_length=100, required=True)
-    role = serializers.CharField(min_length=10, required=True)
+    address = serializers.CharField(min_length=10, required=True)
     pincode = serializers.CharField(min_length=6, max_length=6, required=True)
 
     class Meta:
@@ -32,6 +31,11 @@ class SignupSerializer(serializers.ModelSerializer):
     def validate_pincode(self, value):
         if not value.isdigit():
             raise serializers.ValidationError("Pincode must be numeric")
+        return value
+    def validate_role(self, value):
+        allowed_roles = ["CUSTOMER", "SELLER", "ADMIN"]
+        if value not in allowed_roles:
+            raise serializers.ValidationError("Invalid role")
         return value
     
 class ProfileSerializer(serializers.ModelSerializer):
