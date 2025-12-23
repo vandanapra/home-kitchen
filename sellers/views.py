@@ -89,9 +89,9 @@ class SellerMenuView(APIView):
     def get(self, request):
         date = request.query_params.get("date")
         date = date or timezone.now().date()
-        seller_profile = request.user.seller_profile
+        # seller_profile = request.user.seller_profile
         menu = MenuDay.objects.filter(
-            seller=seller_profile,
+            seller=request.user,
             date=date
         ).first()
 
