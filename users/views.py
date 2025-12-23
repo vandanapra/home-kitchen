@@ -147,7 +147,7 @@ class SignupView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response({"message": "Profile completed"})
+        return Response({"message": "Profile completed", "role": serializer.instance.role})
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
