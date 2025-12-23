@@ -123,7 +123,8 @@ class VerifyOTPView(APIView):
                 "message": "Login successful",
                 "access": str(refresh.access_token),
                 "refresh": str(refresh),
-                "is_new_user": created   # 🔥 KEY CHANGE
+                "is_new_user": created,  # 🔥 KEY CHANGE
+                "role": user.role
             })
 
         except Exception as e:
