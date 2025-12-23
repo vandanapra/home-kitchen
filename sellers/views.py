@@ -89,9 +89,9 @@ class SellerMenuView(APIView):
     def get(self, request):
         date = request.query_params.get("date")
         date = date or timezone.now().date()
-
+        seller_profile = request.user.seller_profile
         menu = MenuDay.objects.filter(
-            seller=request.user,
+            seller=seller_profile,
             date=date
         ).first()
 
@@ -161,16 +161,16 @@ class CustomerTodayMenuView(APIView):
 
     def get(self, request, seller_id):
         today = timezone.now().date()
-
+        seller_profile = SellerProfile.objects.get(id=seller_id)
         menu = MenuDay.objects.filter(
-            seller_id=seller_id,
+            seller_id=seller_profile,
             date=today,
             is_active=True
         ).first()
 
         if not menu:
             return Response({
-                "message": "No menu available today"
+                "message": "No menu available today","items": []
             }, status=200)
 
         serializer = MenuDaySerializer(menu)
@@ -201,7 +201,7 @@ class CustomerSellerListView(APIView):
     def get(self, request):
         sellers = SellerProfile.objects.filter(
             is_active=True,
-            user__role="SELLER"
+            user__role="Seller"
         ).select_related("user")
 
         data = SellerProfileSerializer(sellers, many=True).data
