@@ -76,6 +76,7 @@ class VerifyOTPView(APIView):
         try:
             mobile = request.data.get("mobile")
             otp = request.data.get("otp")
+            role = request.data.get("role")
 
             if not mobile or not otp:
                 return Response(
@@ -107,7 +108,7 @@ class VerifyOTPView(APIView):
             # 👤 USER CHECK
             user, created = User.objects.get_or_create(
                 mobile=mobile,
-                defaults={"is_verified": True,"role":"CUSTOMER"}
+                defaults={"is_verified": True,"role":role or "CUSTOMER"}
             )
 
             # If existing user, ensure verified
