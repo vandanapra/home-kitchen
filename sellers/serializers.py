@@ -2,9 +2,11 @@ from rest_framework import serializers
 from .models import *
 
 class SellerProfileSerializer(serializers.ModelSerializer):
+    seller_id = serializers.IntegerField(source="user.id", read_only=True)
     class Meta:
         model = SellerProfile
-        fields = [
+        fields = ["id",
+            "seller_id",
             "kitchen_name",
             "description",
             "opening_time",

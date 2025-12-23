@@ -176,23 +176,35 @@ class CustomerTodayMenuView(APIView):
         serializer = MenuDaySerializer(menu)
         return Response(serializer.data)
     
+# class CustomerSellerListView(APIView):
+#     permission_classes = []  # public API
+
+#     def get(self, request):
+#         sellers = SellerProfile.objects.filter(is_active=True)
+
+#         data = []
+#         for seller in sellers:
+#             data.append({
+#                 "id": seller.user.id,                 # 🔑 IMPORTANT
+#                 "kitchen_name": seller.kitchen_name,
+#                 "description": seller.description,
+#                 "avg_rating": seller.avg_rating,
+#                 "opening_time": seller.opening_time,
+#                 "closing_time": seller.closing_time,
+#             })
+
+#         return Response(data)
+
 class CustomerSellerListView(APIView):
-    permission_classes = []  # public API
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        sellers = SellerProfile.objects.filter(is_active=True)
+        sellers = SellerProfile.objects.filter(
+            is_active=True,
+            user__role="SELLER"
+        ).select_related("user")
 
-        data = []
-        for seller in sellers:
-            data.append({
-                "id": seller.user.id,                 # 🔑 IMPORTANT
-                "kitchen_name": seller.kitchen_name,
-                "description": seller.description,
-                "avg_rating": seller.avg_rating,
-                "opening_time": seller.opening_time,
-                "closing_time": seller.closing_time,
-            })
-
+        data = SellerProfileSerializer(sellers, many=True).data
         return Response(data)
     
 class SellerMenuItemDeleteView(APIView):
