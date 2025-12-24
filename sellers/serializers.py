@@ -32,7 +32,7 @@ class MenuDaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MenuDay
-        fields = ["id", "date", "is_active", "items"]
+        fields = ["id", "day", "is_active", "items"]
 
     def create(self, validated_data):
         items_data = validated_data.pop("items")

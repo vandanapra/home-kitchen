@@ -35,64 +35,20 @@ class SellerProfileView(APIView):
         except Exception as e:
             print(str(e))
             
-# class SellerMenuView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         today = timezone.now().date()
-#         menu = MenuDay.objects.filter(
-#             seller=request.user,
-#             date=today
-#         ).first()
-
-#         if not menu:
-#             return Response({"menu": None})
-
-#         return Response(MenuDaySerializer(menu).data)
-    
-#     def post(self, request):
-#         today = timezone.now().date()
-
-#         items = request.data.get("items", [])
-
-#         # ✅ FIX: update_or_create instead of create
-#         menu_day, created = MenuDay.objects.update_or_create(
-#             seller=request.user,
-#             date=today,
-#             defaults={
-#                 "is_active": True
-#             }
-#         )
-
-#         # 🔥 IMPORTANT: old items delete karo
-#         menu_day.items.all().delete()
-
-#         # 🔥 new items add karo
-#         for item in items:
-#             MenuItem.objects.create(
-#                 menu_day=menu_day,
-#                 name=item.get("name"),
-#                 description=item.get("description", ""),
-#                 price=item.get("price"),
-#                 is_available=True
-#             )
-
-#         return Response({
-#             "message": "Menu saved successfully",
-#             "created": created
-#         })
 
 class SellerMenuView(APIView):
     permission_classes = [IsAuthenticated]
 
     # 🔹 GET menu (by date)
     def get(self, request):
-        date = request.query_params.get("date")
-        date = date or timezone.now().date()
-
+        # date = request.query_params.get("date")
+        # date = date or timezone.now().date()
+        day = request.query_params.get("day")
+        if not day:
+            day = timezone.now().strftime("%A").upper()
         menu = MenuDay.objects.filter(
             seller=request.user,
-            date=date
+            day=day
         ).first()
 
         if not menu:
@@ -103,7 +59,8 @@ class SellerMenuView(APIView):
     # 🔹 PUT = ADD + EDIT
     def put(self, request):
         try:
-            date = request.data.get("date") or timezone.now().date()
+            # date = request.data.get("date") or timezone.now().date()
+            day = request.data.get("day")
             items = request.data.get("items", [])
 
             if not items:
@@ -111,10 +68,15 @@ class SellerMenuView(APIView):
                     {"error": "Items required"},
                     status=400
                 )
+            if not day:
+                return Response(
+                    {"error": "Day is required"},
+                    status=400
+                )
 
             menu_day, created = MenuDay.objects.update_or_create(
                 seller=request.user,
-                date=date,
+                day=day,
                 defaults={"is_active": True}
             )
 
@@ -160,11 +122,12 @@ class CustomerTodayMenuView(APIView):
     permission_classes = []  # Public API
 
     def get(self, request, seller_id):
-        today = timezone.now().date()
+        # today = timezone.now().date()
+        today_day = timezone.now().strftime("%A").upper()
 
         menu = MenuDay.objects.filter(
             seller_id=seller_id,
-            date=today,
+            day=today_day,
             is_active=True
         ).first()
 
