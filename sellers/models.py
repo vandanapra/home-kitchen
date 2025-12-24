@@ -13,20 +13,30 @@ class SellerProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
 class MenuDay(models.Model):
+    DAY_CHOICES = (
+        ("MONDAY", "Monday"),
+        ("TUESDAY", "Tuesday"),
+        ("WEDNESDAY", "Wednesday"),
+        ("THURSDAY", "Thursday"),
+        ("FRIDAY", "Friday"),
+        ("SATURDAY", "Saturday"),
+        ("SUNDAY", "Sunday"),
+    )
     seller = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
         related_name="menu_days"
     )
-    date = models.DateField(default=timezone.now)
+    # date = models.DateField(default=timezone.now)
+    day = models.CharField(max_length=10, choices=DAY_CHOICES,default="")
     is_active = models.BooleanField(default=True)
 
-    class Meta:
-        unique_together = ("seller", "date")
-        ordering = ["date"]
+    # class Meta:
+    #     unique_together = ("seller", "date")
+    #     ordering = ["date"]
 
     def __str__(self):
-        return f"{self.seller.mobile} - {self.date}"
+        return f"{self.seller.mobile}"
     
 class MenuItem(models.Model):
     menu_day = models.ForeignKey(
