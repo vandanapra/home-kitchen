@@ -106,28 +106,28 @@ WSGI_APPLICATION = 'home_kitchen.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'home_kitchen_db',
-        'USER': 'postgres',
-        'PASSWORD': '1@Aachal',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
-}
-
-
 # DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": os.getenv("DB_NAME"),
-#         "USER": os.getenv("DB_USER"),
-#         "PASSWORD": os.getenv("DB_PASSWORD"),
-#         "HOST": os.getenv("DB_HOST"),   # db
-#         "PORT": os.getenv("DB_PORT"),   # 5432
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'home_kitchen_db',
+#         'USER': 'postgres',
+#         'PASSWORD': '1@Aachal',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
 #     }
 # }
+
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),   # db
+        "PORT": os.getenv("DB_PORT"),   # 5432
+    }
+}
 
 
 
