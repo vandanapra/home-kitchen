@@ -33,39 +33,42 @@ class OrderCreateWhatsappView(APIView):
             user = request.user
             seller_id = request.data.get("seller_id")
             items = request.data.get("items", [])
+            day = request.data.get("day")  # 🔥 NEW
 
-            if not seller_id or not items:
+            if not seller_id or not items or not day:
                 return Response(
-                    {"message": "Seller & items required"},
+                    {"message": "Seller, items & day required"},
                     status=400
                 )
 
             seller = SellerProfile.objects.get(user__id=seller_id)
-            today = timezone.now().date()
 
-            if Order.objects.filter(
-                customer=user,
-                seller=seller,
-                order_date=today
-            ).exists():
-                return Response(
-                    {"message": "Order already placed today"},
-                    status=400
-                )
+            # if Order.objects.filter(
+            #     customer=user,
+            #     seller=seller,
+            #     day=day
+            # ).exists():
+            #     return Response(
+            #         {"message": "Order already placed today"},
+            #         status=400
+            #     )
 
             order = Order.objects.create(
                 customer=user,
                 seller=seller,
+                day=day,
                 total_amount=0,
                 status="PENDING"
             )
+            
 
             total = Decimal("0.00")
 
             for item in items:
                 menu_item = MenuItem.objects.get(
                     id=item["menu_item_id"],
-                    menu_day__seller=seller.user   # 🔥 IMPORTANT
+                    menu_day__seller=seller.user,
+                    menu_day__day=day    # 🔥 DAY MATCH
                 )
 
                 qty = int(item["quantity"])
@@ -85,12 +88,20 @@ class OrderCreateWhatsappView(APIView):
                 {
                     "message": "Order placed successfully",
                     "order_id": order.id,
+                    "day": day,
                     "total": total
                 },
                 status=201
             )
+        except SellerProfile.DoesNotExist:
+            return Response({"error": "Seller not found"}, status=404)
+
+        except MenuItem.DoesNotExist:
+            return Response({"error": "Menu item not found for selected day"}, status=400)
+
         except Exception as e:
-            print(e)
+            print("ORDER ERROR:", e)
+            return Response({"error": "Something went wrong"}, status=500)
     
 class SellerOrdersView(APIView):
     permission_classes = [IsAuthenticated]

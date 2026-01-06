@@ -6,6 +6,18 @@ class Order(models.Model):
     total_amount = models.DecimalField(max_digits=8, decimal_places=2)
     status = models.CharField(max_length=20,choices=[('PENDING','Pending'),('PAID','Paid'),('DELIVERED','Delivered')],default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)
+    day = models.CharField(
+        max_length=10,
+        choices=[
+            ("MONDAY","Monday"),
+            ("TUESDAY","Tuesday"),
+            ("WEDNESDAY","Wednesday"),
+            ("THURSDAY","Thursday"),
+            ("FRIDAY","Friday"),
+            ("SATURDAY","Saturday"),
+            ("SUNDAY","Sunday"),
+        ],default=""
+    )
    ## Add Flag to Prevent Duplicate Orders
     order_date = models.DateField(auto_now_add=True)
     is_subscription_order = models.BooleanField(default=False)
