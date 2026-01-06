@@ -12,6 +12,7 @@ from decimal import Decimal
 from django.utils import timezone
 from .models import Order, OrderItem
 from sellers.models import MenuItem, SellerProfile
+from .serializers import SellerOrderSerializer
 
 class OrderCreateView(APIView):
     # permission_classes = [IsCustomer]
@@ -106,15 +107,33 @@ class OrderCreateWhatsappView(APIView):
 class SellerOrdersView(APIView):
     permission_classes = [IsAuthenticated]
 
+    # def get(self, request):
+    #     orders = Order.objects.filter(
+    #         seller=request.user
+    #     ).order_by("-created_at")
+
+    #     return Response(
+    #         SellerOrderSerializer(orders, many=True).data
+    #     )
+        
     def get(self, request):
+        user = request.user
+
+        # 🔥 Ensure seller profile exists
+        if not hasattr(user, "seller_profile"):
+            return Response(
+                {"message": "Seller profile not found"},
+                status=400
+            )
+
+        seller_profile = user.seller_profile
+
         orders = Order.objects.filter(
-            seller=request.user
+            seller=seller_profile
         ).order_by("-created_at")
 
-        from .serializers import SellerOrderSerializer
-        return Response(
-            SellerOrderSerializer(orders, many=True).data
-        )
+        serializer = SellerOrderSerializer(orders, many=True)
+        return Response(serializer.data)
 
 
 
