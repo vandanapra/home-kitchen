@@ -90,6 +90,7 @@ class OrderCreateWhatsappView(APIView):
                     "message": "Order placed successfully",
                     "order_id": order.id,
                     "day": day,
+                     "order_date": order.order_date,
                     "total": total
                 },
                 status=201

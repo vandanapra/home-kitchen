@@ -128,6 +128,8 @@ class SellerOrderSerializer(serializers.ModelSerializer):
             "id",
             "customer_name",
             "customer_mobile",
+            "day",           # ✅ ADDED
+            "order_date",    # ✅ ADDED
             "status",
             "total_amount",
             "items",
