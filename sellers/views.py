@@ -61,6 +61,8 @@ class SellerMenuView(APIView):
         try:
             # date = request.data.get("date") or timezone.now().date()
             day = request.data.get("day")
+            if not day:
+                day = timezone.now().strftime("%A").upper()
             items = request.data.get("items", [])
 
             if not items:
