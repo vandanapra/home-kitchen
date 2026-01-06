@@ -135,6 +135,49 @@ class SellerOrdersView(APIView):
 
         serializer = SellerOrderSerializer(orders, many=True)
         return Response(serializer.data)
+    
+class OrderActionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, order_id):
+        action = request.data.get("action")
+
+        if action not in ["ACCEPT", "REJECT"]:
+            return Response(
+                {"message": "Invalid action"},
+                status=400
+            )
+
+        try:
+            order = Order.objects.get(id=order_id)
+
+            # 🔒 Only seller can update their order
+            if order.seller.user != request.user:
+                return Response(
+                    {"message": "Unauthorized"},
+                    status=403
+                )
+
+            if order.status != "PENDING":
+                return Response(
+                    {"message": "Order already processed"},
+                    status=400
+                )
+
+            order.status = "ACCEPTED" if action == "ACCEPT" else "REJECTED"
+            order.save()
+
+            return Response({
+                "message": f"Order {order.status.lower()} successfully",
+                "status": order.status
+            })
+
+        except Order.DoesNotExist:
+            return Response(
+                {"message": "Order not found"},
+                status=404
+            )
+
 
 
 
