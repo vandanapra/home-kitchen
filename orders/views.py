@@ -119,7 +119,7 @@ class SellerOrdersView(APIView):
         
     def get(self, request):
         user = request.user
-
+        date = request.query_params.get("date")
         # 🔥 Ensure seller profile exists
         if not hasattr(user, "seller_profile"):
             return Response(
@@ -131,7 +131,10 @@ class SellerOrdersView(APIView):
 
         orders = Order.objects.filter(
             seller=seller_profile
-        ).order_by("-created_at")
+        )
+        if date:
+            orders = orders.filter(order_date=date)
+        orders = orders.order_by("-created_at")
 
         serializer = SellerOrderSerializer(orders, many=True)
         return Response(serializer.data)
@@ -179,14 +182,15 @@ class OrderActionView(APIView):
             )
 
 
-
-
-
 class OrderListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        orders = Order.objects.filter(customer=request.user).order_by("-created_at")
+        date = request.query_params.get("date")
+        orders = Order.objects.filter(customer=request.user)
+        if date:
+            orders = orders.filter(order_date=date)
+        orders = orders.order_by("-created_at")
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
 
