@@ -59,7 +59,9 @@ class OrderCreateWhatsappView(APIView):
                 seller=seller,
                 day=day,
                 total_amount=0,
-                status="PENDING"
+                status="PENDING",
+                order_date=timezone.now().date()
+                
             )
             
 

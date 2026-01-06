@@ -99,11 +99,18 @@ class OrderSerializer(serializers.ModelSerializer):
         source="seller.kitchen_name",
         read_only=True
     )
+    order_date = serializers.DateField()
+    day = serializers.CharField()
+    customer_name = serializers.CharField(source="customer.name")
+
 
     class Meta:
         model = Order
         fields = [
             "id",
+            "customer_name",
+            "day",
+            "order_date",
             "seller_name",
             "total_amount",
             "status",
@@ -121,6 +128,8 @@ class SellerOrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(
         many=True, source="orderitem_set"
     )
+    order_date = serializers.DateField()
+    day = serializers.CharField()
 
     class Meta:
         model = Order
