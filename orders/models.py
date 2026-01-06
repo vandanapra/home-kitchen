@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.utils import timezone
 class Order(models.Model):
     customer = models.ForeignKey('users.User', on_delete=models.CASCADE)
     seller = models.ForeignKey('sellers.SellerProfile', on_delete=models.CASCADE)
@@ -25,7 +25,7 @@ class Order(models.Model):
         ],default=""
     )
    ## Add Flag to Prevent Duplicate Orders
-    order_date = models.DateField(auto_now_add=True)
+    order_date = models.DateField(default=timezone.now)
     is_subscription_order = models.BooleanField(default=False)
     
 class OrderItem(models.Model):
