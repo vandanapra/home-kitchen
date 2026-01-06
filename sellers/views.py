@@ -166,7 +166,7 @@ class CustomerSellerListView(APIView):
     def get(self, request):
         sellers = SellerProfile.objects.filter(
             is_active=True,
-            user__role="Seller"
+            user__role="SELLER"
         ).select_related("user")
 
         data = SellerProfileSerializer(sellers, many=True).data
