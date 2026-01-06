@@ -52,9 +52,14 @@ class SellerMenuView(APIView):
         ).first()
 
         if not menu:
-            return Response({"menu": None})
+            return Response({
+                "day": day,
+                "items": []
+            })
 
-        return Response(MenuDaySerializer(menu).data)
+        data = MenuDaySerializer(menu).data
+        data["day"] = day
+        return Response(data)
 
     # 🔹 PUT = ADD + EDIT
     def put(self, request):
@@ -113,9 +118,7 @@ class SellerMenuView(APIView):
                     existing_ids.append(new_item.id)
 
             return Response({
-                "message": "Menu updated successfully",
-                "menu_id": menu_day.id
-            })
+                "message": "Menu saved successfully","day": day})
         except Exception as e:
             print(e)
 
