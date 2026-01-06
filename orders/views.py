@@ -204,3 +204,37 @@ class OrderHistoryView(APIView):
             return Response(serializer.data)
         except Exception as e:
             print(e)
+            
+class OrderDeliveredView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, order_id):
+        try:
+            order = Order.objects.get(id=order_id)
+
+            # 🔒 Only seller of this order
+            if order.seller.user != request.user:
+                return Response(
+                    {"message": "Unauthorized"},
+                    status=403
+                )
+
+            if order.status != "ACCEPTED":
+                return Response(
+                    {"message": "Only accepted orders can be delivered"},
+                    status=400
+                )
+
+            order.status = "DELIVERED"
+            order.save()
+
+            return Response({
+                "message": "Order marked as delivered",
+                "status": order.status
+            })
+
+        except Order.DoesNotExist:
+            return Response(
+                {"message": "Order not found"},
+                status=404
+            )
