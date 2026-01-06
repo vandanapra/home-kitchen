@@ -110,3 +110,26 @@ class OrderSerializer(serializers.ModelSerializer):
             "items",
             "created_at"
         ]
+        
+class SellerOrderSerializer(serializers.ModelSerializer):
+    customer_name = serializers.CharField(
+        source="customer.name", read_only=True
+    )
+    customer_mobile = serializers.CharField(
+        source="customer.mobile", read_only=True
+    )
+    items = OrderItemSerializer(
+        many=True, source="orderitem_set"
+    )
+
+    class Meta:
+        model = Order
+        fields = [
+            "id",
+            "customer_name",
+            "customer_mobile",
+            "status",
+            "total_amount",
+            "items",
+            "created_at",
+        ]

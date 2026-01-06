@@ -100,9 +100,9 @@ class SellerOrdersView(APIView):
             seller=request.user
         ).order_by("-created_at")
 
-        from .serializers import OrderSerializer
+        from .serializers import SellerOrderSerializer
         return Response(
-            OrderSerializer(orders, many=True).data
+            SellerOrderSerializer(orders, many=True).data
         )
 
 
