@@ -13,6 +13,8 @@ from django.utils import timezone
 from .models import Order, OrderItem
 from sellers.models import MenuItem, SellerProfile
 from .serializers import SellerOrderSerializer
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 class OrderCreateView(APIView):
     # permission_classes = [IsCustomer]
@@ -44,27 +46,15 @@ class OrderCreateWhatsappView(APIView):
 
             seller = SellerProfile.objects.get(user__id=seller_id)
 
-            # if Order.objects.filter(
-            #     customer=user,
-            #     seller=seller,
-            #     day=day
-            # ).exists():
-            #     return Response(
-            #         {"message": "Order already placed today"},
-            #         status=400
-            #     )
-
             order = Order.objects.create(
                 customer=user,
                 seller=seller,
                 day=day,
                 total_amount=0,
                 status="PENDING",
-                order_date=timezone.now().date()
-                
+                order_date=timezone.now().date()  
             )
             
-
             total = Decimal("0.00")
 
             for item in items:
@@ -86,17 +76,34 @@ class OrderCreateWhatsappView(APIView):
 
             order.total_amount = total
             order.save()
-
-            return Response(
+             # 🔔 LIVE NOTIFICATION
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f"orders_{seller.user.id}",
                 {
-                    "message": "Order placed successfully",
-                    "order_id": order.id,
-                    "day": day,
-                     "order_date": order.order_date,
-                    "total": total
-                },
-                status=201
+                    "type": "send_order",
+                    "data": {
+                        "order_id": order.id,
+                        "customer": user.name,
+                        "day": order.day,
+                        "date": str(order.order_date),
+                        "total": str(order.total_amount)
+                    }
+                }
             )
+
+            return Response({"message": "Order placed"}, status=201)
+
+            # return Response(
+            #     {
+            #         "message": "Order placed successfully",
+            #         "order_id": order.id,
+            #         "day": day,
+            #          "order_date": order.order_date,
+            #         "total": total
+            #     },
+            #     status=201
+            # )
         except SellerProfile.DoesNotExist:
             return Response({"error": "Seller not found"}, status=404)
 

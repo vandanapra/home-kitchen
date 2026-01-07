@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'adminpanel',
     'rating_reviews',
     'subscription',
+    'channels',
+    'notifications',
 ]
 AUTH_USER_MODEL = 'users.User'
 
@@ -209,4 +211,15 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": False,
 
     "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
+ASGI_APPLICATION = 'home_kitchen.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
 }
