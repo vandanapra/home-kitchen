@@ -86,8 +86,8 @@ class OrderCreateWhatsappView(APIView):
                         "order_id": order.id,
                         "customer": user.name,
                         "day": order.day,
-                        "date": str(order.order_date),
-                        "total": str(order.total_amount)
+                        "date": order.order_date.strftime("%Y-%m-%d"),
+                        "total": str(total)
                     }
                 }
             )
