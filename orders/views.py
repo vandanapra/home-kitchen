@@ -13,8 +13,7 @@ from django.utils import timezone
 from .models import Order, OrderItem
 from sellers.models import MenuItem, SellerProfile
 from .serializers import SellerOrderSerializer
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+from home_kitchen.socket_server import notify_seller
 
 class OrderCreateView(APIView):
     # permission_classes = [IsCustomer]
@@ -77,33 +76,37 @@ class OrderCreateWhatsappView(APIView):
             order.total_amount = total
             order.save()
              # 🔔 LIVE NOTIFICATION
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                f"orders_{seller.user.id}",
-                {
-                    "type": "send_order",
-                    "data": {
+            # channel_layer = get_channel_layer()
+            # async_to_sync(channel_layer.group_send)(
+            #     f"orders_{seller.user.id}",
+            #     {
+            #         "type": "send_order",
+            #         "data": {
+            #             "order_id": order.id,
+            #             "customer": user.name,
+            #             "day": order.day,
+            #             "date": order.order_date.strftime("%Y-%m-%d"),
+            #             "total": str(total)
+            #         }
+            #     }
+            # )
+
+            # return Response({"message": "Order placed"}, status=201)
+
+             # 🔔 SOCKET EVENT
+            asyncio.create_task(
+                notify_seller(
+                    seller.user.id,
+                    {
                         "order_id": order.id,
                         "customer": user.name,
-                        "day": order.day,
-                        "date": order.order_date.strftime("%Y-%m-%d"),
-                        "total": str(total)
+                        "total": str(total),
+                        "day": day,
+                        "date": timezone.now().strftime("%d %b %Y"),
                     }
-                }
+                )
             )
-
             return Response({"message": "Order placed"}, status=201)
-
-            # return Response(
-            #     {
-            #         "message": "Order placed successfully",
-            #         "order_id": order.id,
-            #         "day": day,
-            #          "order_date": order.order_date,
-            #         "total": total
-            #     },
-            #     status=201
-            # )
         except SellerProfile.DoesNotExist:
             return Response({"error": "Seller not found"}, status=404)
 
