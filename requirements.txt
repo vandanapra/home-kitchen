@@ -26,6 +26,6 @@ sqlparse==0.5.4
 twilio==9.8.8
 tzdata==2025.3
 urllib3==2.6.2
-yarl==1.22.
+yarl==1.22
 python-engineio
 python-socketio
