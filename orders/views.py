@@ -15,6 +15,7 @@ from sellers.models import MenuItem, SellerProfile
 from .serializers import SellerOrderSerializer
 from home_kitchen.socket_server import notify_seller
 import asyncio
+from asgiref.sync import async_to_sync
 
 class OrderCreateView(APIView):
     # permission_classes = [IsCustomer]
@@ -79,18 +80,18 @@ class OrderCreateWhatsappView(APIView):
              # 🔔 LIVE NOTIFICATION
 
              # 🔔 SOCKET EVENT
-            asyncio.create_task(
-                notify_seller(
-                    seller.user.id,
-                    {
-                        "order_id": order.id,
-                        "customer": user.name,
-                        "total": str(total),
-                        "day": day,
-                        "date": timezone.now().strftime("%d %b %Y"),
-                    }
-                )
-            )
+             
+            async_to_sync(notify_seller)(
+    seller.user.id,
+    {
+        "order_id": order.id,
+        "customer": user.name,
+        "total": str(total),
+        "day": day,
+        "date": timezone.now().strftime("%d %b %Y"),
+    }
+)
+            
             return Response({"message": "Order placed"}, status=201)
         except SellerProfile.DoesNotExist:
             return Response({"error": "Seller not found"}, status=404)
