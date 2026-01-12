@@ -14,6 +14,7 @@ from .models import Order, OrderItem
 from sellers.models import MenuItem, SellerProfile
 from .serializers import SellerOrderSerializer
 from home_kitchen.socket_server import notify_seller
+import asyncio
 
 class OrderCreateView(APIView):
     # permission_classes = [IsCustomer]
@@ -76,22 +77,6 @@ class OrderCreateWhatsappView(APIView):
             order.total_amount = total
             order.save()
              # 🔔 LIVE NOTIFICATION
-            # channel_layer = get_channel_layer()
-            # async_to_sync(channel_layer.group_send)(
-            #     f"orders_{seller.user.id}",
-            #     {
-            #         "type": "send_order",
-            #         "data": {
-            #             "order_id": order.id,
-            #             "customer": user.name,
-            #             "day": order.day,
-            #             "date": order.order_date.strftime("%Y-%m-%d"),
-            #             "total": str(total)
-            #         }
-            #     }
-            # )
-
-            # return Response({"message": "Order placed"}, status=201)
 
              # 🔔 SOCKET EVENT
             asyncio.create_task(
