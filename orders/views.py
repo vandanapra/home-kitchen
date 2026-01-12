@@ -81,18 +81,17 @@ class OrderCreateWhatsappView(APIView):
 
              # 🔔 SOCKET EVENT
              
-            async_to_sync(notify_seller)(
-    seller.user.id,
-    {
-        "order_id": order.id,
-        "customer": user.name,
-        "total": str(total),
-        "day": day,
-        "date": timezone.now().strftime("%d %b %Y"),
-    }
-)
-            
-            return Response({"message": "Order placed"}, status=201)
+#             async_to_sync(notify_seller)(
+#     seller.user.id,
+#     {
+#         "order_id": order.id,
+#         "customer": user.name,
+#         "total": str(total),
+#         "day": day,
+#         "date": timezone.now().strftime("%d %b %Y"),
+#     }
+# )
+            return Response({"message": "Order placed",}, status=201)
         except SellerProfile.DoesNotExist:
             return Response({"error": "Seller not found"}, status=404)
 
@@ -107,33 +106,39 @@ class SellerOrdersView(APIView):
     permission_classes = [IsAuthenticated]
 
     # def get(self, request):
+    #     user = request.user
+    #     date = request.query_params.get("date")
+    #     # 🔥 Ensure seller profile exists
+    #     if not hasattr(user, "seller_profile"):
+    #         return Response(
+    #             {"message": "Seller profile not found"},
+    #             status=400
+    #         )
+
+    #     seller_profile = user.seller_profile
+
     #     orders = Order.objects.filter(
-    #         seller=request.user
-    #     ).order_by("-created_at")
-
-    #     return Response(
-    #         SellerOrderSerializer(orders, many=True).data
+    #         seller=seller_profile,status="PENDING"
     #     )
-        
-    def get(self, request):
-        user = request.user
-        date = request.query_params.get("date")
-        # 🔥 Ensure seller profile exists
-        if not hasattr(user, "seller_profile"):
-            return Response(
-                {"message": "Seller profile not found"},
-                status=400
-            )
+    #     if date:
+    #         orders = orders.filter(order_date=date)
+    #     orders = orders.order_by("-created_at")
 
-        seller_profile = user.seller_profile
+    #     serializer = SellerOrderSerializer(orders, many=True)
+    #     return Response(serializer.data)
+    def get(self, request):
+        seller = request.user.seller_profile
+        date = request.query_params.get("date")
 
         orders = Order.objects.filter(
-            seller=seller_profile
+            seller=seller,
+            status="PENDING"
         )
+
         if date:
             orders = orders.filter(order_date=date)
-        orders = orders.order_by("-created_at")
 
+        orders = orders.order_by("-created_at")
         serializer = SellerOrderSerializer(orders, many=True)
         return Response(serializer.data)
     
