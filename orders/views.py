@@ -13,7 +13,7 @@ from django.utils import timezone
 from .models import Order, OrderItem
 from sellers.models import MenuItem, SellerProfile
 from .serializers import SellerOrderSerializer
-from orders.utils.email import send_order_email_to_seller
+from orders.utils.email import send_order_email_to_seller,send_invoice_email_to_customer
 
 class OrderCreateView(APIView):
     # permission_classes = [IsCustomer]
@@ -79,6 +79,8 @@ class OrderCreateWhatsappView(APIView):
                 seller.user.email,
                 order
             )
+            send_invoice_email_to_customer(order)
+
            
             return Response({"message": "Order placed",}, status=201)
         except SellerProfile.DoesNotExist:
