@@ -105,7 +105,7 @@ class SellerOrdersView(APIView):
         seller_profile = user.seller_profile
 
         orders = Order.objects.filter(
-            seller=seller_profile,status="PENDING"
+            seller=seller_profile,
         )
         if date:
             orders = orders.filter(order_date=date)
