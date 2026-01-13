@@ -7,7 +7,7 @@ def send_order_email_to_seller(seller_email, order):
 
     items_text = "\n".join([
         f"- {item.menu_item.name} × {item.quantity}"
-        for item in order.items.all()
+        for item in order.orderitem_set.all()
     ])
 
     message = f"""

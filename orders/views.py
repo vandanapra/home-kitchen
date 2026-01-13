@@ -75,10 +75,10 @@ class OrderCreateWhatsappView(APIView):
 
             order.total_amount = total
             order.save()
-            # send_order_email_to_seller(
-            #     seller.user.email,
-            #     order
-            # )
+            send_order_email_to_seller(
+                seller.user.email,
+                order
+            )
            
             return Response({"message": "Order placed",}, status=201)
         except SellerProfile.DoesNotExist:
