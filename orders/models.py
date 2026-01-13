@@ -29,7 +29,7 @@ class Order(models.Model):
     is_subscription_order = models.BooleanField(default=False)
     
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order,related_name="items",on_delete=models.CASCADE)
+    order = models.ForeignKey(Order,on_delete=models.CASCADE)
     menu_item = models.ForeignKey('sellers.MenuItem', on_delete=models.CASCADE,null=True)
     quantity = models.PositiveIntegerField()
 
