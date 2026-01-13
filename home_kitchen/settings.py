@@ -228,3 +228,14 @@ CHANNEL_LAYERS = {
 }
 
 
+# EMAIL CONFIG
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "vandanaiec303@gmail.com"        # 🔴 apna email
+EMAIL_HOST_PASSWORD = "lbbz nqto cono hbzm"      # 🔴 gmail app password
+
+DEFAULT_FROM_EMAIL = "Home Kitchen <yourgmail@gmail.com>"
