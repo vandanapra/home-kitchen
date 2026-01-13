@@ -13,7 +13,7 @@ from django.utils import timezone
 from .models import Order, OrderItem
 from sellers.models import MenuItem, SellerProfile
 from .serializers import SellerOrderSerializer
-from utils.email import send_order_email_to_seller
+from orders.utils.email import send_order_email_to_seller
 
 class OrderCreateView(APIView):
     # permission_classes = [IsCustomer]
