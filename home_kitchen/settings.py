@@ -120,6 +120,7 @@ WSGI_APPLICATION = 'home_kitchen.wsgi.application'
 # }
 
 
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -189,11 +190,11 @@ TWILIO_VERIFY_SERVICE_SID = os.getenv('TWILIO_VERIFY_SERVICE_SID')
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    "http://localhost:5173","https://cloud-kitchen-rouge.vercel.app",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-    "http://13.233.98.184:8000",
+    "http://13.233.98.184:8000","https://cloud-kitchen-rouge.vercel.app"
 ]
 
 

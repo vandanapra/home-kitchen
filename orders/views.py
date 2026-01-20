@@ -117,21 +117,6 @@ class SellerOrdersView(APIView):
 
         serializer = SellerOrderSerializer(orders, many=True)
         return Response(serializer.data)
-    # def get(self, request):
-    #     seller = request.user.seller_profile
-    #     date = request.query_params.get("date")
-
-    #     orders = Order.objects.filter(
-    #         seller=seller,
-    #         status="PENDING"
-    #     )
-
-    #     if date:
-    #         orders = orders.filter(order_date=date)
-
-    #     orders = orders.order_by("-created_at")
-    #     serializer = SellerOrderSerializer(orders, many=True)
-    #     return Response(serializer.data)
     
 class OrderActionView(APIView):
     permission_classes = [IsAuthenticated]
@@ -236,3 +221,25 @@ class OrderDeliveredView(APIView):
                 {"message": "Order not found"},
                 status=404
             )
+
+class DownloadInvoiceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, order_id):
+        order = get_object_or_404(
+            Order,
+            id=order_id,
+            customer=request.user   # 🔒 security
+        )
+
+        pdf_buffer = generate_order_invoice_pdf(order)
+        invoice_no = generate_invoice_number(order)
+
+        response = HttpResponse(
+            pdf_buffer,
+            content_type="application/pdf"
+        )
+        response["Content-Disposition"] = (
+            f'attachment; filename="{invoice_no}.pdf"'
+        )
+        return response
