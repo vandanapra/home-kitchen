@@ -43,23 +43,26 @@ class SellerMenuView(APIView):
     def get(self, request):
         # date = request.query_params.get("date")
         # date = date or timezone.now().date()
-        day = request.query_params.get("day")
-        if not day:
-            day = timezone.now().strftime("%A").upper()
-        menu = MenuDay.objects.filter(
-            seller=request.user,
-            day=day
-        ).first()
+        try:
+            day = request.query_params.get("day")
+            if not day:
+                day = timezone.now().strftime("%A").upper()
+            menu = MenuDay.objects.filter(
+                seller=request.user,
+                day=day
+            ).first()
 
-        if not menu:
-            return Response({
-                "day": day,
-                "items": []
-            })
+            if not menu:
+                return Response({
+                    "day": day,
+                    "items": []
+                })
 
-        data = MenuDaySerializer(menu).data
-        data["day"] = day
-        return Response(data)
+            data = MenuDaySerializer(menu).data
+            data["day"] = day
+            return Response(data)
+        except Exception as e:
+            print (e)
 
     # 🔹 PUT = ADD + EDIT
     # def put(self, request):
@@ -203,25 +206,28 @@ class CustomerTodayMenuView(APIView):
 
     def get(self, request, seller_id):
         # today = timezone.now().date()
-        day = request.query_params.get("day")
-        if not day:
-            day = timezone.now().strftime("%A").upper()
+        try:
+            day = request.query_params.get("day")
+            if not day:
+                day = timezone.now().strftime("%A").upper()
 
-        menu = MenuDay.objects.filter(
-            seller_id=seller_id,
-            day=day,
-            is_active=True
-        ).first()
+            menu = MenuDay.objects.filter(
+                seller_id=seller_id,
+                day=day,
+                is_active=True
+            ).first()
 
-        if not menu:
-            return Response({
-                "message": "No menu available today"
-            }, status=200)
+            if not menu:
+                return Response({
+                    "message": "No menu available today"
+                }, status=200)
 
-        serializer = MenuDaySerializer(menu)
-        data = serializer.data
-        data["day"] = day
-        return Response(data)
+            serializer = MenuDaySerializer(menu)
+            data = serializer.data
+            data["day"] = day
+            return Response(data)
+        except Exception as e:
+            print (e)
     
 # class CustomerSellerListView(APIView):
 #     permission_classes = []  # public API
