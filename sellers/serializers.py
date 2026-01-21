@@ -27,10 +27,14 @@ class MenuItemSerializer(serializers.ModelSerializer):
         model = MenuItem
         fields = ["id", "name", "description", "price", "is_available","image_url"]
     def get_image_url(self, obj):
-        if obj.image:
-            request = self.context.get("request")
+        if not obj.image:
+            return None
+
+        request = self.context.get("request")
+        if request:
             return request.build_absolute_uri(obj.image.url)
-        return None
+
+        return obj.image.url 
 
 
 class MenuDaySerializer(serializers.ModelSerializer):

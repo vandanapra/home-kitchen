@@ -222,7 +222,7 @@ class CustomerTodayMenuView(APIView):
                     "message": "No menu available today"
                 }, status=200)
 
-            serializer = MenuDaySerializer(menu)
+            serializer = MenuDaySerializer(menu, context={"request": request})
             data = serializer.data
             data["day"] = day
             return Response(data)
