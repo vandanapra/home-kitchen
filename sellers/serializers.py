@@ -22,13 +22,19 @@ class SellerProfileSerializer(serializers.ModelSerializer):
         return data
     
 class MenuItemSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
     class Meta:
         model = MenuItem
-        fields = ["id", "name", "description", "price", "is_available"]
+        fields = ["id", "name", "description", "price", "is_available","image_url"]
+    def get_image_url(self, obj):
+        if obj.image:
+            request = self.context.get("request")
+            return request.build_absolute_uri(obj.image.url)
+        return None
 
 
 class MenuDaySerializer(serializers.ModelSerializer):
-    items = MenuItemSerializer(many=True)
+    items = MenuItemSerializer(many=True, read_only=True)
 
     class Meta:
         model = MenuDay
