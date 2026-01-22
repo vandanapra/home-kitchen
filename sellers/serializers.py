@@ -44,11 +44,23 @@ class MenuDaySerializer(serializers.ModelSerializer):
         model = MenuDay
         fields = ["id", "day", "is_active", "items"]
 
-    def create(self, validated_data):
-        items_data = validated_data.pop("items")
-        menu_day = MenuDay.objects.create(**validated_data)
+    # def create(self, validated_data):
+    #     items_data = validated_data.pop("items")
+    #     menu_day = MenuDay.objects.create(**validated_data)
 
-        for item in items_data:
-            MenuItem.objects.create(menu_day=menu_day, **item)
+    #     for item in items_data:
+    #         MenuItem.objects.create(menu_day=menu_day, **item)
 
-        return menu_day
+    #     return menu_day
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        # 🔥 pass request context to nested serializer
+        request = self.context.get("request")
+        data["items"] = MenuItemSerializer(
+            instance.items.all(),
+            many=True,
+            context={"request": request}
+        ).data
+
+        return data
