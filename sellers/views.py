@@ -41,8 +41,6 @@ class SellerMenuView(APIView):
 
     # 🔹 GET menu (by date)
     def get(self, request):
-        # date = request.query_params.get("date")
-        # date = date or timezone.now().date()
         try:
             day = request.query_params.get("day")
             if not day:
@@ -58,9 +56,9 @@ class SellerMenuView(APIView):
                     "items": []
                 })
 
-            data = MenuDaySerializer(menu).data
+            serializer = MenuDaySerializer(menu, context={"request": request})
+            data = serializer.data
             data["day"] = day
-            return Response(data)
         except Exception as e:
             print (e)
 
