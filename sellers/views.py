@@ -45,13 +45,9 @@ class SellerMenuView(APIView):
             day = request.query_params.get("day")
             if not day:
                 day = timezone.now().strftime("%A").upper()
-            if not hasattr(request.user, "seller_profile"):
-                return Response(
-                    {"error": "Seller profile not found"},
-                    status=400
-                )
+            
             menu = MenuDay.objects.filter(
-                seller=request.user.seller_profile,
+                seller=request.user,
                 day=day
             ).first()
 
