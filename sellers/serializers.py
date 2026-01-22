@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import *
-
+from django.conf import settings
 class SellerProfileSerializer(serializers.ModelSerializer):
     seller_id = serializers.IntegerField(source="user.id", read_only=True)
     class Meta:
@@ -30,11 +30,11 @@ class MenuItemSerializer(serializers.ModelSerializer):
         if not obj.image:
             return None
 
-        request = self.context.get("request")
-        if request:
-            return request.build_absolute_uri(obj.image.url)
-
-        return obj.image.url 
+        # request = self.context.get("request")
+        # if request:
+            # return request.build_absolute_uri(obj.image.url)
+        return settings.MEDIA_URL + obj.image.name
+         
 
 
 class MenuDaySerializer(serializers.ModelSerializer):

@@ -57,7 +57,7 @@ class SellerMenuView(APIView):
                     "items": []
                 })
 
-            serializer = MenuDaySerializer(menu, context={"request": request})
+            serializer = MenuDaySerializer(menu)
             data = serializer.data
             data["day"] = day
             return Response(data)
