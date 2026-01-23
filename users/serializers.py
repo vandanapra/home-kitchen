@@ -23,10 +23,10 @@ class SignupSerializer(serializers.ModelSerializer):
     city = serializers.CharField(min_length=2, required=True)
     address = serializers.CharField(min_length=10, required=True)
     pincode = serializers.CharField(min_length=6, max_length=6, required=True)
-
+    email = serializers.EmailField(required=False, allow_null=True, allow_blank=True)
     class Meta:
         model = User
-        fields = ["name", "city", "address", "pincode","role"]
+        fields = ["name", "city","email", "address", "pincode","role"]
 
     def validate_pincode(self, value):
         if not value.isdigit():

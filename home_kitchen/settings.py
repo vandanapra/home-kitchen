@@ -205,10 +205,10 @@ CSRF_TRUSTED_ORIGINS = [
 SIMPLE_JWT = {
 
     # 🔥 ACCESS TOKEN — 3 DAYS
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=3),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
 
     # 🔁 REFRESH TOKEN — 7 DAYS
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
 
     # OPTIONAL (safe defaults)
     "ROTATE_REFRESH_TOKENS": False,
