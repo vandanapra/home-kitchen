@@ -30,28 +30,23 @@ class MenuItemSerializer(serializers.ModelSerializer):
         if not obj.image:
             return None
 
-        # request = self.context.get("request")
-        # if request:
-            # return request.build_absolute_uri(obj.image.url)
         return settings.MEDIA_URL + obj.image.name
          
 
 
 class MenuDaySerializer(serializers.ModelSerializer):
     items = MenuItemSerializer(many=True, read_only=True)
-
+    kitchen_name = serializers.SerializerMethodField()
     class Meta:
         model = MenuDay
-        fields = ["id", "day", "is_active", "items"]
+        fields = ["id", "day","kitchen_name", "is_active", "items"]
+    
+    def get_kitchen_name(self, obj):
+        try:
+            return obj.seller.seller_profile.kitchen_name
+        except:
+            return None
 
-    # def create(self, validated_data):
-    #     items_data = validated_data.pop("items")
-    #     menu_day = MenuDay.objects.create(**validated_data)
-
-    #     for item in items_data:
-    #         MenuItem.objects.create(menu_day=menu_day, **item)
-
-    #     return menu_day
     def to_representation(self, instance):
         data = super().to_representation(instance)
 
