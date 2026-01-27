@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SendOTPView, VerifyOTPView, ProfileView,SendOTPViewviaWhatsapp,SignupView,UserAddressView,SetDefaultAddressView
+from .views import SendOTPView, VerifyOTPView, ProfileView,SendOTPViewviaWhatsapp,SignupView,UserAddressView,SetDefaultAddressView,AddressDetailView
 
 urlpatterns = [
     path("signup/", SignupView.as_view()),
@@ -9,4 +9,5 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path("addresses/", UserAddressView.as_view()),
     path("addresses/default/<int:address_id>/", SetDefaultAddressView.as_view()),
+    path("addresses/<int:pk>/", AddressDetailView.as_view()),
 ]

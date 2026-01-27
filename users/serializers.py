@@ -58,11 +58,6 @@ class ProfileSerializer(serializers.ModelSerializer):
 class UserAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAddress
-        fields = [
-            "id",
-            "address",
-            "city",
-            "pincode",
-            "is_default"
-        ]
+        fields = ["id","address","city","pincode","is_default"]
+        read_only_fields = ["user"]
 

@@ -181,6 +181,22 @@ class UserAddressView(APIView):
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
     
+class AddressDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        address = UserAddress.objects.get(pk=pk, user=request.user)
+        serializer = UserAddressSerializer(address, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    def delete(self, request, pk):
+        address = UserAddress.objects.get(pk=pk, user=request.user)
+        address.delete()
+        return Response({"message": "Address deleted"})
+    
 class SetDefaultAddressView(APIView):
     permission_classes = [IsAuthenticated]
 
