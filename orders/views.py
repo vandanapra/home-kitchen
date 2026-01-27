@@ -37,7 +37,8 @@ class OrderCreateWhatsappView(APIView):
             items = request.data.get("items", [])
             day = request.data.get("day")  # 🔥 NEW
             address_id = request.data.get("address_id")
-          
+            payment_method = request.data.get("payment_method", "COD")
+            paid_amount = Decimal(request.data.get("paid_amount", 0))
             if not seller_id or not items or not day:
             # if not all([seller_id, items, day, address, city, pincode]):
                 return Response(
@@ -68,8 +69,10 @@ class OrderCreateWhatsappView(APIView):
                 customer=user,
                 seller=seller,
                 day=day,
+                payment_method=payment_method,
+                paid_amount=paid_amount,
                 total_amount=0,
-                status="PENDING",
+                status="PAID" if payment_method == "ONLINE" else "PENDING",
                 order_date=timezone.now().date() ,
                 delivery_address=address.address,
                 delivery_city=address.city,

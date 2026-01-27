@@ -1,9 +1,24 @@
 from django.db import models
 from django.utils import timezone
 class Order(models.Model):
+    PAYMENT_CHOICES = (
+        ("COD", "Cash on Delivery"),
+        ("ONLINE", "Online Payment"),
+        ("PARTIAL", "Partial Payment"),
+    )
     customer = models.ForeignKey('users.User', on_delete=models.CASCADE)
     seller = models.ForeignKey('sellers.SellerProfile', on_delete=models.CASCADE)
     total_amount = models.DecimalField(max_digits=8, decimal_places=2)
+    payment_method = models.CharField(
+        max_length=10,
+        choices=PAYMENT_CHOICES,
+        default="COD"
+    )
+    paid_amount = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        default=0
+    )
     status = models.CharField(max_length=20,choices=[
         ('PENDING','Pending'),
         ('PAID','Paid'),
