@@ -26,6 +26,9 @@ class Order(models.Model):
     )
    ## Add Flag to Prevent Duplicate Orders
     order_date = models.DateField(default=timezone.now)
+    delivery_address = models.TextField(default="")
+    delivery_city = models.CharField(max_length=50,default="")
+    delivery_pincode = models.CharField(max_length=10,default="")
     is_subscription_order = models.BooleanField(default=False)
     
 class OrderItem(models.Model):

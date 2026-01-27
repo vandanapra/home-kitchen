@@ -36,8 +36,13 @@ class OrderCreateWhatsappView(APIView):
             seller_id = request.data.get("seller_id")
             items = request.data.get("items", [])
             day = request.data.get("day")  # 🔥 NEW
+            
+            address = request.data.get("address")
+            city = request.data.get("city")
+            pincode = request.data.get("pincode")
 
-            if not seller_id or not items or not day:
+            # if not seller_id or not items or not day:
+            if not all([seller_id, items, day, address, city, pincode]):
                 return Response(
                     {"message": "Seller, items & day required"},
                     status=400
@@ -51,7 +56,10 @@ class OrderCreateWhatsappView(APIView):
                 day=day,
                 total_amount=0,
                 status="PENDING",
-                order_date=timezone.now().date()  
+                order_date=timezone.now().date() ,
+                delivery_address=address,
+                delivery_city=city,
+                delivery_pincode=pincode 
             )
             
             total = Decimal("0.00")
@@ -222,24 +230,4 @@ class OrderDeliveredView(APIView):
                 status=404
             )
 
-class DownloadInvoiceView(APIView):
-    permission_classes = [IsAuthenticated]
 
-    def get(self, request, order_id):
-        order = get_object_or_404(
-            Order,
-            id=order_id,
-            customer=request.user   # 🔒 security
-        )
-
-        pdf_buffer = generate_order_invoice_pdf(order)
-        invoice_no = generate_invoice_number(order)
-
-        response = HttpResponse(
-            pdf_buffer,
-            content_type="application/pdf"
-        )
-        response["Content-Disposition"] = (
-            f'attachment; filename="{invoice_no}.pdf"'
-        )
-        return response
