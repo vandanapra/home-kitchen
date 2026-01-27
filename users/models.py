@@ -46,3 +46,27 @@ class OTP(models.Model):
     otp = models.CharField(max_length=6)
     is_used = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+class UserAddress(models.Model):
+    user = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        related_name="addresses"
+    )
+    address = models.TextField()
+    city = models.CharField(max_length=50)
+    pincode = models.CharField(max_length=6)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        # 🔥 Ensure only ONE default address
+        if self.is_default:
+            UserAddress.objects.filter(
+                user=self.user,
+                is_default=True
+            ).update(is_default=False)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.address} ({self.city})"

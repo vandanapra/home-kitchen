@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User, OTP
-from .serializers import SendOTPSerializer, VerifyOTPSerializer, UserProfileSerializer,SignupSerializer,ProfileSerializer
+from .models import User, OTP,UserAddress
+from .serializers import SendOTPSerializer, VerifyOTPSerializer, UserProfileSerializer,SignupSerializer,ProfileSerializer,UserAddressSerializer
 from notifications.services import send_whatsapp_message
 from twilio.rest import Client
 from django.conf import settings
@@ -165,3 +165,33 @@ class ProfileView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({"message": "Profile updated successfully"})
+    
+class UserAddressView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        addresses = UserAddress.objects.filter(user=request.user)
+        serializer = UserAddressSerializer(addresses, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = UserAddressSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+    
+class SetDefaultAddressView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, address_id):
+        try:
+            address = UserAddress.objects.get(
+                id=address_id,
+                user=request.user
+            )
+            address.is_default = True
+            address.save()
+            return Response({"message": "Default address updated"})
+        except UserAddress.DoesNotExist:
+            return Response({"error": "Address not found"}, status=404)

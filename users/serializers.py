@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, OTP
+from .models import User, OTP,UserAddress
 
 class SendOTPSerializer(serializers.Serializer):
     mobile = serializers.CharField(max_length=15)
@@ -54,4 +54,15 @@ class ProfileSerializer(serializers.ModelSerializer):
         if not value.isdigit() or len(value) != 6:
             raise serializers.ValidationError("Pincode must be 6 digits")
         return value
+    
+class UserAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAddress
+        fields = [
+            "id",
+            "address",
+            "city",
+            "pincode",
+            "is_default"
+        ]
 

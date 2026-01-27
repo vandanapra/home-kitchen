@@ -14,7 +14,7 @@ from .models import Order, OrderItem
 from sellers.models import MenuItem, SellerProfile
 from .serializers import SellerOrderSerializer
 from orders.utils.email import send_order_email_to_seller,send_invoice_email_to_customer
-
+from users.models import UserAddress
 class OrderCreateView(APIView):
     # permission_classes = [IsCustomer]
     permission_classes = [IsAuthenticated]
@@ -36,19 +36,33 @@ class OrderCreateWhatsappView(APIView):
             seller_id = request.data.get("seller_id")
             items = request.data.get("items", [])
             day = request.data.get("day")  # 🔥 NEW
-            
-            address = request.data.get("address")
-            city = request.data.get("city")
-            pincode = request.data.get("pincode")
-
-            # if not seller_id or not items or not day:
-            if not all([seller_id, items, day, address, city, pincode]):
+            address_id = request.data.get("address_id")
+          
+            if not seller_id or not items or not day:
+            # if not all([seller_id, items, day, address, city, pincode]):
                 return Response(
                     {"message": "Seller, items & day required"},
                     status=400
                 )
 
             seller = SellerProfile.objects.get(user__id=seller_id)
+            if address_id:
+                address = UserAddress.objects.get(
+                    id=address_id,
+                    user=user
+                )
+            else:
+                address = UserAddress.objects.filter(
+                    user=user,
+                    is_default=True
+                ).first()
+
+
+            if not address:
+                return Response(
+                    {"error": "No default address set"},
+                    status=400
+                )
 
             order = Order.objects.create(
                 customer=user,
@@ -57,9 +71,9 @@ class OrderCreateWhatsappView(APIView):
                 total_amount=0,
                 status="PENDING",
                 order_date=timezone.now().date() ,
-                delivery_address=address,
-                delivery_city=city,
-                delivery_pincode=pincode 
+                delivery_address=address.address,
+                delivery_city=address.city,
+                delivery_pincode=address.pincode 
             )
             
             total = Decimal("0.00")
