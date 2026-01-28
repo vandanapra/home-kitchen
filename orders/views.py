@@ -12,7 +12,7 @@ from decimal import Decimal
 from django.utils import timezone
 from .models import Order, OrderItem
 from sellers.models import MenuItem, SellerProfile
-from .serializers import SellerOrderSerializer
+from .serializers import SellerOrderSerializer,CustomerOrderSerializer
 from orders.utils.email import send_order_email_to_seller,send_invoice_email_to_customer
 from users.models import UserAddress
 class OrderCreateView(APIView):
@@ -107,7 +107,7 @@ class OrderCreateWhatsappView(APIView):
             send_invoice_email_to_customer(order)
 
            
-            return Response({"message": "Order placed",}, status=201)
+            return Response({"message": "Order placed", "order_id": order.id}, status=201)
         except SellerProfile.DoesNotExist:
             return Response({"error": "Seller not found"}, status=404)
 
@@ -248,3 +248,17 @@ class OrderDeliveredView(APIView):
             )
 
 
+class CustomerOrderDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        order = Order.objects.filter(
+            id=pk,
+            customer=request.user
+        ).first()
+
+        if not order:
+            return Response({"error": "Not found"}, status=404)
+
+        serializer = CustomerOrderSerializer(order)
+        return Response(serializer.data)

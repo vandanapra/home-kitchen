@@ -77,3 +77,31 @@ class SellerOrderSerializer(serializers.ModelSerializer):
             "items",
             "created_at",
         ]
+
+
+class CustomerOrderSerializer(serializers.ModelSerializer):
+    seller_name = serializers.CharField(source="seller.kitchen_name")
+    items = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = [
+            "id",
+            "seller_name",
+            "day",
+            "order_date",
+            "total_amount",
+            "payment_method",
+            "paid_amount",
+            "status",
+            "items",
+        ]
+
+    def get_items(self, obj):
+        return [
+            {
+                "item_name": i.menu_item.name,
+                "quantity": i.quantity
+            }
+            for i in obj.orderitem_set.all()
+        ]
