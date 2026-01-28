@@ -41,6 +41,9 @@ class Order(models.Model):
     )
    ## Add Flag to Prevent Duplicate Orders
     order_date = models.DateField(default=timezone.now)
+    razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_signature = models.TextField(blank=True, null=True)
     delivery_address = models.TextField(default="")
     delivery_city = models.CharField(max_length=50,default="")
     delivery_pincode = models.CharField(max_length=10,default="")
