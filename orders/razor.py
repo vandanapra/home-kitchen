@@ -9,19 +9,27 @@ class CreateRazorpayOrderView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        amount = request.data.get("amount")
+        try:
+            amount = request.data.get("amount")
 
-        client = razorpay.Client(
-            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
-        )
+            client = razorpay.Client(
+                auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+            )
 
-        order = client.order.create({
-            "amount": int(float(amount) * 100),  # paise
-            "currency": "INR",
-            "payment_capture": 1,
-        })
+            order = client.order.create({
+                "amount": int(float(amount) * 100),  # paise
+                "currency": "INR",
+                "payment_capture": 1,
+            })
 
-        return Response({
-            "razorpay_order_id": order["id"],
-            "key": settings.RAZORPAY_KEY_ID
-        })
+            return Response({
+                "razorpay_order_id": order["id"],
+                "key": settings.RAZORPAY_KEY_ID,
+                "amount":amount
+            })
+        except Exception as e:
+            print("RAZORPAY ERROR:", e)
+            return Response(
+                {"message": "Payment initiation failed"},
+                status=500
+            )                        
