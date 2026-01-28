@@ -224,3 +224,84 @@ class CustomerDashboardView(APIView):
             })
 
         return Response(data)
+    
+class OrderInvoiceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, order_id):
+        order = get_object_or_404(
+            Order,
+            id=order_id,
+            customer=request.user
+        )
+
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = f'attachment; filename="invoice_{order.id}.pdf"'
+
+        p = canvas.Canvas(response, pagesize=A4)
+        width, height = A4
+
+        y = height - 50
+
+        # ===== HEADER =====
+        p.setFont("Helvetica-Bold", 18)
+        p.drawString(50, y, "Home Kitchen Invoice")
+        y -= 40
+
+        p.setFont("Helvetica", 10)
+        p.drawString(50, y, f"Invoice No: HK-{order.id}")
+        y -= 15
+        p.drawString(50, y, f"Order Date: {order.created_at.strftime('%d %b %Y')}")
+        y -= 30
+
+        # ===== CUSTOMER =====
+        p.setFont("Helvetica-Bold", 12)
+        p.drawString(50, y, "Customer Details")
+        y -= 15
+
+        p.setFont("Helvetica", 10)
+        p.drawString(50, y, f"Name: {order.customer.name}")
+        y -= 15
+        p.drawString(50, y, f"Address: {order.delivery_address}")
+        y -= 15
+        p.drawString(50, y, f"{order.delivery_city} - {order.delivery_pincode}")
+        y -= 30
+
+        # ===== ORDER ITEMS =====
+        p.setFont("Helvetica-Bold", 12)
+        p.drawString(50, y, "Order Items")
+        y -= 20
+
+        p.setFont("Helvetica-Bold", 10)
+        p.drawString(50, y, "Item")
+        p.drawString(300, y, "Qty")
+        p.drawString(350, y, "Price")
+        y -= 15
+
+        p.setFont("Helvetica", 10)
+        for item in order.items.all():
+            p.drawString(50, y, item.menu_item.name)
+            p.drawString(300, y, str(item.quantity))
+            p.drawString(350, y, f"₹{item.menu_item.price}")
+            y -= 15
+
+        y -= 20
+
+        # ===== TOTAL =====
+        p.setFont("Helvetica-Bold", 12)
+        p.drawString(50, y, f"Total Amount: ₹{order.total_amount}")
+        y -= 15
+        p.drawString(50, y, f"Payment Method: {order.payment_method}")
+        y -= 15
+        p.drawString(50, y, f"Paid Amount: ₹{order.paid_amount}")
+
+        y -= 40
+
+        p.setFont("Helvetica-Oblique", 9)
+        p.drawString(50, y, "Thank you for ordering from Home Kitchen!")
+
+        p.showPage()
+        p.save()
+
+        return response
+
