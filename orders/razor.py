@@ -15,6 +15,8 @@ class CreateRazorpayOrderView(APIView):
             client = razorpay.Client(
                 auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
             )
+            print("RAZORPAY KEY ID:", settings.RAZORPAY_KEY_ID)
+            print("RAZORPAY KEY SECRET:", settings.RAZORPAY_KEY_SECRET)
 
             order = client.order.create({
                 "amount": int(float(amount) * 100),  # paise
