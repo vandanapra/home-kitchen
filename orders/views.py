@@ -72,7 +72,7 @@ class OrderCreateWhatsappView(APIView):
                 payment_method=payment_method,
                 paid_amount=paid_amount,
                 total_amount=0,
-                status="PAID" if payment_method == "ONLINE" else "PENDING",
+                status="PAID" if payment_method in ["ONLINE", "PARTIAL"] else "PENDING",
                 order_date=timezone.now().date() ,
                 delivery_address=address.address,
                 delivery_city=address.city,

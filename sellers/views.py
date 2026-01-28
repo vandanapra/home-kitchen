@@ -64,67 +64,7 @@ class SellerMenuView(APIView):
         except Exception as e:
             print (e)
 
-    # 🔹 PUT = ADD + EDIT
-    # def put(self, request):
-    #     try:
-    #         # date = request.data.get("date") or timezone.now().date()
-    #         day = request.data.get("day")
-    #         if not day:
-    #             day = timezone.now().strftime("%A").upper()
-    #         items = request.data.get("items", [])
-
-    #         if not items:
-    #             return Response(
-    #                 {"error": "Items required"},
-    #                 status=400
-    #             )
-    #         if not day:
-    #             return Response(
-    #                 {"error": "Day is required"},
-    #                 status=400
-    #             )
-
-    #         menu_day, created = MenuDay.objects.update_or_create(
-    #             seller=request.user,
-    #             day=day,
-    #             defaults={"is_active": True}
-    #         )
-
-    #         existing_ids = []
-
-    #         for item in items:
-    #             item_id = item.get("id")
-
-    #             # ✏️ UPDATE EXISTING ITEM
-    #             if item_id:
-    #                 menu_item = MenuItem.objects.filter(
-    #                     id=item_id,
-    #                     menu_day=menu_day
-    #                 ).first()
-
-    #                 if menu_item:
-    #                     menu_item.name = item["name"]
-    #                     menu_item.description = item.get("description", "")
-    #                     menu_item.price = item["price"]
-    #                     menu_item.save()
-    #                     existing_ids.append(menu_item.id)
-
-    #             # ➕ ADD NEW ITEM (APPEND)
-    #             else:
-    #                 new_item = MenuItem.objects.create(
-    #                     menu_day=menu_day,
-    #                     name=item["name"],
-    #                     description=item.get("description", ""),
-    #                     price=item["price"],
-    #                     is_available=True
-    #                 )
-    #                 existing_ids.append(new_item.id)
-
-    #         return Response({
-    #             "message": "Menu saved successfully","day": day})
-    #     except Exception as e:
-    #         print(e)
-    # 🔹 PUT = ADD + EDIT (WITH IMAGE SUPPORT)
+    
     def put(self, request):
         try:
             # 🔹 DAY
@@ -229,24 +169,7 @@ class CustomerTodayMenuView(APIView):
         except Exception as e:
             print (e)
     
-# class CustomerSellerListView(APIView):
-#     permission_classes = []  # public API
 
-#     def get(self, request):
-#         sellers = SellerProfile.objects.filter(is_active=True)
-
-#         data = []
-#         for seller in sellers:
-#             data.append({
-#                 "id": seller.user.id,                 # 🔑 IMPORTANT
-#                 "kitchen_name": seller.kitchen_name,
-#                 "description": seller.description,
-#                 "avg_rating": seller.avg_rating,
-#                 "opening_time": seller.opening_time,
-#                 "closing_time": seller.closing_time,
-#             })
-
-#         return Response(data)
 
 class CustomerSellerListView(APIView):
     permission_classes = [IsAuthenticated]
