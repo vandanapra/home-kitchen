@@ -58,6 +58,68 @@ def generate_invoice_number(order):
 
     return f"INV-{year}-{sequence}"
 
+# def generate_order_invoice_pdf(order):
+#     buffer = BytesIO()
+#     p = canvas.Canvas(buffer, pagesize=A4)
+#     width, height = A4
+
+#     y = height - 50
+
+#     invoice_no = generate_invoice_number(order)
+
+#     # 🔹 Header
+#     p.setFont("Helvetica-Bold", 18)
+#     p.drawString(50, y, "Home Kitchen - Invoice")
+
+#     y -= 30
+#     p.setFont("Helvetica", 10)
+#     p.drawString(50, y, f"Invoice No: {invoice_no}")
+#     y -= 15
+#     p.drawString(50, y, f"Invoice Date: {timezone.now().strftime('%d %b %Y')}")
+#     y -= 15
+#     p.drawString(50, y, f"Order ID: {order.id}")
+
+#     y -= 30
+#     p.drawString(50, y, f"Customer: {order.customer.name}")
+#     y -= 15
+#     p.drawString(50, y, f"Kitchen: {order.seller.kitchen_name}")
+#     y -= 15
+#     p.drawString(50, y, f"Order Day: {order.day}")
+#     y -= 15
+#     p.drawString(50, y, f"Order Date: {order.order_date}")
+
+#     # 🔹 Table Header
+#     y -= 30
+#     p.setFont("Helvetica-Bold", 11)
+#     p.drawString(50, y, "Item")
+#     p.drawString(300, y, "Qty")
+#     p.drawString(350, y, "Price")
+
+#     y -= 15
+#     p.setFont("Helvetica", 10)
+
+#     total = Decimal("0.00")
+
+#     for item in order.orderitem_set.all():
+#         line_total = item.menu_item.price * item.quantity
+#         total += line_total
+
+#         p.drawString(50, y, item.menu_item.name)
+#         p.drawString(300, y, str(item.quantity))
+#         p.drawString(350, y, f"₹{line_total}")
+#         y -= 15
+
+#     # 🔹 Total
+#     y -= 20
+#     p.setFont("Helvetica-Bold", 12)
+#     p.drawString(50, y, f"Total Amount: ₹{total}")
+
+#     p.showPage()
+#     p.save()
+
+#     buffer.seek(0)
+#     return buffer
+
 def generate_order_invoice_pdf(order):
     buffer = BytesIO()
     p = canvas.Canvas(buffer, pagesize=A4)
@@ -65,37 +127,53 @@ def generate_order_invoice_pdf(order):
 
     y = height - 50
 
+    # ========= INVOICE NUMBER ========= #
     invoice_no = generate_invoice_number(order)
 
-    # 🔹 Header
+    # ========= HEADER ========= #
     p.setFont("Helvetica-Bold", 18)
-    p.drawString(50, y, "Home Kitchen - Invoice")
+    p.drawString(50, y, "Home Kitchen Invoice")
+    y -= 40
 
-    y -= 30
     p.setFont("Helvetica", 10)
     p.drawString(50, y, f"Invoice No: {invoice_no}")
     y -= 15
     p.drawString(50, y, f"Invoice Date: {timezone.now().strftime('%d %b %Y')}")
     y -= 15
     p.drawString(50, y, f"Order ID: {order.id}")
-
+    y -= 15
+    p.drawString(50, y, f"Order Date: {order.created_at.strftime('%d %b %Y')}")
     y -= 30
-    p.drawString(50, y, f"Customer: {order.customer.name}")
+
+    # ========= CUSTOMER DETAILS ========= #
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(50, y, "Customer Details")
+    y -= 15
+
+    p.setFont("Helvetica", 10)
+    p.drawString(50, y, f"Name: {order.customer.name}")
+    y -= 15
+    p.drawString(50, y, f"Address: {order.delivery_address}")
+    y -= 15
+    p.drawString(50, y, f"{order.delivery_city} - {order.delivery_pincode}")
     y -= 15
     p.drawString(50, y, f"Kitchen: {order.seller.kitchen_name}")
     y -= 15
     p.drawString(50, y, f"Order Day: {order.day}")
-    y -= 15
-    p.drawString(50, y, f"Order Date: {order.order_date}")
-
-    # 🔹 Table Header
     y -= 30
-    p.setFont("Helvetica-Bold", 11)
+
+    # ========= TABLE HEADER ========= #
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(50, y, "Order Items")
+    y -= 20
+
+    p.setFont("Helvetica-Bold", 10)
     p.drawString(50, y, "Item")
     p.drawString(300, y, "Qty")
     p.drawString(350, y, "Price")
-
     y -= 15
+
+    # ========= ITEM LIST ========= #
     p.setFont("Helvetica", 10)
 
     total = Decimal("0.00")
@@ -109,16 +187,29 @@ def generate_order_invoice_pdf(order):
         p.drawString(350, y, f"₹{line_total}")
         y -= 15
 
-    # 🔹 Total
     y -= 20
+
+    # ========= TOTAL + PAYMENT INFO ========= #
     p.setFont("Helvetica-Bold", 12)
     p.drawString(50, y, f"Total Amount: ₹{total}")
+    y -= 15
+    p.drawString(50, y, f"Payment Method: {order.payment_method}")
+    y -= 15
+    p.drawString(50, y, f"Paid Amount: ₹{order.paid_amount}")
 
+    # ========= THANK YOU ========= #
+    y -= 40
+    p.setFont("Helvetica-Oblique", 9)
+    p.drawString(50, y, "Thank you for ordering from Home Kitchen!")
+
+    # ========= SAVE ========= #
     p.showPage()
     p.save()
 
     buffer.seek(0)
     return buffer
+
+
 
 
 
