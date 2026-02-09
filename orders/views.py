@@ -170,7 +170,12 @@ class OrderActionView(APIView):
                     status=403
                 )
 
-            if order.status != "PENDING":
+            # if order.status != "PENDING":
+            #     return Response(
+            #         {"message": "Order already processed"},
+            #         status=400
+            #     )
+            if order.status in ["ACCEPTED", "REJECTED", "DELIVERED"]:
                 return Response(
                     {"message": "Order already processed"},
                     status=400
