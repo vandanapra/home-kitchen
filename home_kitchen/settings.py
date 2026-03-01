@@ -197,7 +197,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-    "http://13.233.98.184:8000","https://resonant-khapse-5395e8.netlify.app/"
+    "http://13.233.98.184:8000","https://resonant-khapse-5395e8.netlify.app/","https://api-kitchen.vamsmechatronica.in"
 ]
 
 
