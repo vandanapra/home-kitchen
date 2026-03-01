@@ -29,8 +29,8 @@ SECRET_KEY = 'django-insecure-r*mai=c8r(x^*!(#7+xsdmc+uday@npnnjasb%n^dikrs-4msp
 # SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
-DEBUG = os.getenv("DEBUG") == "True"
-ALLOWED_HOSTS = ["*"]
+DEBUG = os.getenv("DEBUG") == "False"
+ALLOWED_HOSTS = ["https://api-kitchen.vamsmechatronica.in"]
 
 
 # Application definition
@@ -193,11 +193,11 @@ TWILIO_VERIFY_SERVICE_SID = os.getenv('TWILIO_VERIFY_SERVICE_SID')
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173","https://cloud-kitchen-rouge.vercel.app",
+    "http://localhost:5173","https://resonant-khapse-5395e8.netlify.app/",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-    "http://13.233.98.184:8000","https://cloud-kitchen-rouge.vercel.app"
+    "http://13.233.98.184:8000","https://resonant-khapse-5395e8.netlify.app/"
 ]
 
 
