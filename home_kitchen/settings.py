@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-r*mai=c8r(x^*!(#7+xsdmc+uday@npnnjasb%n^dikrs-4msp
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
 DEBUG = os.getenv("DEBUG") == "False"
-ALLOWED_HOSTS = ["https://api-kitchen.vamsmechatronica.in"]
+ALLOWED_HOSTS = ["api-kitchen.vamsmechatronica.in"]
 
 
 # Application definition
