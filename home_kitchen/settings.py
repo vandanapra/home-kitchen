@@ -22,7 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-r*mai=c8r(x^*!(#7+xsdmc+uday@npnnjasb%n^dikrs-4msp'
 
-DEBUG = os.getenv("DEBUG") == "False"
+DEBUG = os.getenv("DEBUG") == "True"
+# DEBUG = os.getenv("DEBUG") == "False"
 ALLOWED_HOSTS = ["api-kitchen.vamsmechatronica.in","*"]
 
 
